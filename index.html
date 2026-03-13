@@ -1598,18 +1598,13 @@ async function submitChallenge() {
   const total = challengeShots.reduce((a,b) => a + b.score, 0);
   const entry = { name, score: total, distance: challengeDist, date: new Date().toLocaleDateString() };
 
-  let entries = [];
   try {
-    const result = await window.storage.get('challenge-leaderboard', true);
-    entries = JSON.parse(result.value);
-  } catch(e) { entries = []; }
-
-  entries.push(entry);
-  entries.sort((a,b) => b.score - a.score);
-
-  try {
-    await window.storage.set('challenge-leaderboard', JSON.stringify(entries.slice(0,200)), true);
-  } catch(e) {}
+    await fetch('https://lasertrainer-pro-default-rtdb.firebaseio.com/leaderboard.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+  } catch(e) { alert('Could not save score. Check connection.'); }
 
   document.getElementById('challenge-active').style.display = 'none';
   document.getElementById('challenge-setup').style.display = 'flex';
@@ -1622,11 +1617,14 @@ async function loadLeaderboard() {
   el.innerHTML = '<div class="empty-state">Loading...</div>';
   let entries = [];
   try {
-    const result = await window.storage.get('challenge-leaderboard', true);
-    entries = JSON.parse(result.value);
+    const res = await fetch('https://lasertrainer-pro-default-rtdb.firebaseio.com/leaderboard.json');
+    const data = await res.json();
+    if (data) entries = Object.values(data);
   } catch(e) { entries = []; }
 
   const filtered = entries.filter(e => e.distance === challengeLBDist);
+  filtered.sort((a,b) => b.score - a.score);
+
   if (!filtered.length) {
     el.innerHTML = '<div class="empty-state">No entries yet for this distance.</div>';
     return;
@@ -1640,6 +1638,7 @@ async function loadLeaderboard() {
     </div>
   `).join('');
 }
+
 
 // ═══════════════════════════════════════════
 // TABS
