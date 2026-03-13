@@ -1632,7 +1632,7 @@ async function loadLeaderboard() {
     el.innerHTML = '<div class="empty-state">No entries yet for this distance.</div>';
     return;
   }
-  el.innerHTML = filtered.slice(0,20).map((e,i) => `
+  el.innerHTML = filtered.slice(0,5).map((e,i) => `
     <div class="shot-entry ${i===0?'z10':i<3?'z9':'z8'}" style="align-items:center">
       <span style="font-family:'Teko',sans-serif;font-size:20px;min-width:28px;color:${i===0?'var(--accent)':i<3?'#aaff00':'var(--blue)'}">${i+1}</span>
       <span style="flex:1;font-size:13px;color:var(--text)">${e.name}</span>
