@@ -950,9 +950,12 @@ function recordShot(zone, px, py, source) {
 
   const shot = { id: now, zone, score: zoneScore(zone), px, py, source, split,
     time: new Date().toLocaleTimeString() };
-  session.shots.push(shot);
+    if (challengeActive) {
+    recordChallengeShot(zone);
+    return;
+  }
 
-  if (challengeActive) recordChallengeShot(zone);
+  session.shots.push(shot);
 
   if (activeDrill) {
     drillShotsThisRun.push(shot);
