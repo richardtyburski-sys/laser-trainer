@@ -1613,6 +1613,20 @@ async function submitChallenge() {
   const total = challengeShots.reduce((a,b) => a + b.score, 0);
   const entry = { name, score: total, distance: challengeDist, date: new Date().toLocaleDateString() };
 
+  // Check if this is a new #1 before saving
+  let isNewTopScore = false;
+  try {
+    const check = await fetch('https://lasertrainer-pro-default-rtdb.firebaseio.com/leaderboard.json');
+    const existing = await check.json();
+    if (existing) {
+      const distEntries = Object.values(existing).filter(e => e.distance === challengeDist);
+      const currentTop = distEntries.length ? Math.max(...distEntries.map(e => e.score)) : -1;
+      if (total > currentTop) isNewTopScore = true;
+    } else {
+      isNewTopScore = true; // First entry ever
+    }
+  } catch(e) {}
+
   try {
     await fetch('https://lasertrainer-pro-default-rtdb.firebaseio.com/leaderboard.json', {
       method: 'POST',
@@ -1623,9 +1637,26 @@ async function submitChallenge() {
 
   document.getElementById('challenge-active').style.display = 'none';
   document.getElementById('challenge-setup').style.display = 'flex';
-  alert(`Challenge complete!\n${name}: ${total}/100\nDistance: ${challengeDist} yards`);
+
+  if (isNewTopScore) {
+    const taunts = [
+      `👑 ${name} TAKES THE THRONE.\nSomeone call the others and let them know they've been embarrassed.`,
+      `🐐 NEW #1: ${name}\nThe previous record has been deleted from history. It never happened.`,
+      `🔥 ${name} just destroyed everyone.\nThe leaderboard needs a moment to recover.`,
+      `💀 LEADERBOARD EXECUTION.\n${name} didn't just win — they committed a crime.`,
+      `🎯 ${name} IS THE PROBLEM NOW.\nEveryone else is just competing for 2nd place.`
+    ];
+    const taunt = taunts[Math.floor(Math.random() * taunts.length)];
+    showCallout('👑 NEW #1', `${name} · ${total}/100`, '🏆 TOP OF THE LEADERBOARD', 'epic');
+    speak(`${name} is the new number one. Everyone else go home.`);
+    setTimeout(() => alert(taunt), 500);
+  } else {
+    alert(`Challenge complete!\n${name}: ${total}/100\nDistance: ${challengeDist} yards`);
+  }
+
   switchLeaderboard(challengeDist);
 }
+
 
 async function loadLeaderboard() {
   const el = document.getElementById('leaderboard-list');
