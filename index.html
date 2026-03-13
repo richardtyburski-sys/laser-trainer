@@ -252,6 +252,18 @@
   .drill-result-title { font-family:'Teko',sans-serif; font-size:36px; letter-spacing:3px; color:var(--accent); }
   .drill-result-stats { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--muted); line-height:2; margin:16px 0; text-align:left; }
   .drill-result-stats span { color:var(--text); }
+  @media (max-width: 768px) {
+  .main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height:auto; }
+  .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+  .camera-container { height: 260px; }
+  .right-panel { height: 70vh; }
+  .tab { font-size: 12px; letter-spacing: 0; padding: 8px 2px; }
+  .btn { padding: 8px 10px; font-size: 12px; }
+  .ctrl-row { gap: 5px; }
+  .session-stats-bar { gap: 8px; padding: 6px 10px; }
+  .session-stat-val { font-size: 14px; }
+}
+
 </style>
 </head>
 <body>
