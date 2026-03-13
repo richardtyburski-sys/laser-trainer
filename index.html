@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LASER TRAINER PRO</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Teko:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0c0f; --surface: #111318; --surface2: #1a1d24;
+    --border: #2a2d35; --accent: #e8ff00; --accent2: #ff4d00;
+    --red: #ff2222; --green: #00ff88; --blue: #00c8ff;
+    --text: #e0e4ee; --muted: #6b7280;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+  }
+
+  body::before {
+    content:''; position:fixed; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events:none; z-index:9999;
+  }
+
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 20px; background:var(--surface);
+    border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;
+  }
+
+  .logo { font-family:'Teko',sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; color:var(--accent); text-shadow:0 0 20px rgba(232,255,0,0.4); }
+  .logo span { color:var(--accent2); }
+
+  .session-info { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); text-align:right; line-height:1.6; }
+
+  .main { display:grid; grid-template-columns:1fr 360px; height:calc(100vh - 53px); }
+
+  /* LEFT */
+  .left-panel { display:flex; flex-direction:column; border-right:1px solid var(--border); overflow:hidden; }
+
+  .camera-container { position:relative; flex:1; background:#000; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+
+  #video { width:100%; height:100%; object-fit:cover; display:none; }
+  #overlay-canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+
+  .camera-off-msg { display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--muted); font-size:14px; }
+  .camera-off-msg svg { opacity:0.25; }
+
+  .detection-status {
+    position:absolute; top:10px; left:10px;
+    display:flex; align-items:center; gap:6px;
+    background:rgba(0,0,0,0.75); border:1px solid var(--border);
+    padding:4px 10px; font-family:'Share Tech Mono',monospace; font-size:11px;
+  }
+
+  .status-dot { width:7px; height:7px; border-radius:50%; background:var(--muted); }
+  .status-dot.live { background:var(--green); animation:pulse 1.2s infinite; }
+  .status-dot.detecting { background:var(--red); animation:pulse 0.4s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  /* Drill timer overlay */
+  .drill-hud {
+    position:absolute; top:10px; right:10px;
+    background:rgba(0,0,0,0.8); border:1px solid var(--accent);
+    padding:8px 14px; text-align:center; display:none;
+  }
+  .drill-hud.active { display:block; }
+  .drill-timer { font-family:'Teko',sans-serif; font-size:48px; line-height:1; color:var(--accent); }
+  .drill-label { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; }
+  .drill-shots-left { font-family:'Teko',sans-serif; font-size:22px; color:var(--text); }
+
+  /* Group analysis overlay */
+  .group-hud {
+    position:absolute; bottom:10px; left:10px;
+    background:rgba(0,0,0,0.8); border:1px solid var(--border);
+    padding:8px 12px; display:none;
+  }
+  .group-hud.active { display:block; }
+  .group-hud-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:4px; }
+  .group-hud-val { font-family:'Teko',sans-serif; font-size:18px; }
+
+  /* Session stats bar */
+  .session-stats-bar {
+    display:flex; gap:14px; align-items:center;
+    padding:7px 14px; background:var(--surface2);
+    border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+    font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); flex-wrap:wrap;
+  }
+  .session-stat { display:flex; flex-direction:column; }
+  .session-stat-val { font-size:17px; font-family:'Teko',sans-serif; color:var(--accent); }
+
+  /* Camera controls */
+  .camera-controls {
+    padding:10px 14px; background:var(--surface);
+    border-top:1px solid var(--border);
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  }
+
+  .btn {
+    font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; letter-spacing:1px;
+    padding:7px 14px; border:1px solid var(--border); background:var(--surface2);
+    color:var(--text); cursor:pointer; transition:all 0.15s; text-transform:uppercase;
+    clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);
+  }
+  .btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(232,255,0,0.05); }
+  .btn.primary { background:var(--accent); color:#000; border-color:var(--accent); }
+  .btn.primary:hover { background:#fff; }
+  .btn.danger { border-color:var(--red); color:var(--red); }
+  .btn.danger:hover { background:rgba(255,34,34,0.1); }
+  .btn.active { border-color:var(--green); color:var(--green); background:rgba(0,255,136,0.08); }
+  .btn:disabled { opacity:0.35; cursor:not-allowed; }
+  .btn.warn { border-color:var(--accent2); color:var(--accent2); }
+
+  .ctrl-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; width:100%; }
+
+  .ctrl-group { display:flex; align-items:center; gap:6px; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); }
+
+  input[type=range] {
+    -webkit-appearance:none; width:80px; height:3px;
+    background:var(--border); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:13px; height:13px; background:var(--accent); cursor:pointer; border-radius:50%;
+  }
+
+  select {
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); padding:5px 8px;
+    font-family:'Share Tech Mono',monospace; font-size:11px;
+    cursor:pointer;
+  }
+  select:focus { outline:none; border-color:var(--accent); }
+
+  /* RIGHT */
+  .right-panel { display:flex; flex-direction:column; overflow:hidden; background:var(--surface); }
+
+  .tabs { display:flex; border-bottom:1px solid var(--border); }
+  .tab {
+    flex:1; padding:10px 4px;
+    font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px;
+    text-align:center; cursor:pointer; color:var(--muted);
+    border-bottom:2px solid transparent; transition:all 0.2s; text-transform:uppercase;
+  }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab:hover:not(.active) { color:var(--text); }
+
+  .tab-content { flex:1; overflow-y:auto; padding:14px; display:none; }
+  .tab-content.active { display:flex; flex-direction:column; gap:12px; }
+  .tab-content::-webkit-scrollbar { width:3px; }
+  .tab-content::-webkit-scrollbar-thumb { background:var(--border); }
+
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .stat-card { background:var(--surface2); border:1px solid var(--border); padding:10px; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent); }
+  .stat-label { font-size:10px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; font-family:'Share Tech Mono',monospace; }
+  .stat-value { font-family:'Teko',sans-serif; font-size:32px; line-height:1; color:var(--accent); }
+  .stat-value.green { color:var(--green); }
+  .stat-value.blue { color:var(--blue); }
+  .stat-value.red { color:var(--red); }
+
+  .zone-breakdown { display:flex; flex-direction:column; gap:5px; }
+  .zone-label { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; align-items:center; margin-bottom:2px; }
+  .zone-bar-bg { height:7px; background:var(--surface2); border:1px solid var(--border); overflow:hidden; }
+  .zone-bar-fill { height:100%; transition:width 0.5s ease; }
+  .zone-bar-fill.z10 { background:var(--accent); }
+  .zone-bar-fill.z9  { background:#aaff00; }
+  .zone-bar-fill.z8  { background:var(--blue); }
+  .zone-bar-fill.z7  { background:#7c7cff; }
+  .zone-bar-fill.zmiss { background:var(--red); }
+
+  .shot-log { display:flex; flex-direction:column; gap:3px; }
+  .shot-entry {
+    display:flex; align-items:center; gap:7px; padding:6px 9px;
+    background:var(--surface2); border-left:3px solid var(--border);
+    font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted);
+    animation:fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:translateX(0)} }
+  .shot-entry.z10 { border-left-color:var(--accent); }
+  .shot-entry.z9  { border-left-color:#aaff00; }
+  .shot-entry.z8  { border-left-color:var(--blue); }
+  .shot-entry.z7  { border-left-color:#7c7cff; }
+  .shot-entry.zmiss { border-left-color:var(--red); }
+  .shot-zone-badge { font-family:'Teko',sans-serif; font-size:17px; min-width:26px; text-align:center; }
+
+  .chart-wrap { background:var(--surface2); border:1px solid var(--border); padding:10px; }
+  .chart-title { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Share Tech Mono',monospace; margin-bottom:8px; }
+
+  .tip-card { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--accent2); padding:12px; }
+  .tip-header { display:flex; align-items:center; gap:7px; margin-bottom:7px; font-family:'Teko',sans-serif; font-size:15px; letter-spacing:1px; color:var(--accent2); text-transform:uppercase; }
+  .tip-body { font-size:13px; line-height:1.6; }
+  .tip-body.loading { color:var(--muted); font-style:italic; }
+
+  /* Grouping card */
+  .group-card { background:var(--surface2); border:1px solid var(--border); padding:12px; }
+  .group-card-title { font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px; color:var(--blue); text-transform:uppercase; margin-bottom:8px; }
+  .group-detail { font-size:12px; color:var(--muted); line-height:1.8; font-family:'Share Tech Mono',monospace; }
+  .group-detail span { color:var(--text); }
+
+  /* Target panel */
+  .target-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:10px; align-items:center; }
+  .panel-label { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Share Tech Mono',monospace; align-self:flex-start; }
+  #manual-target { display:block; cursor:crosshair; }
+
+  /* Drill panel */
+  .drill-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:10px; }
+  .drill-panel-title { font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px; color:var(--accent); text-transform:uppercase; }
+  .drill-options { display:flex; flex-direction:column; gap:6px; }
+  .drill-option {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 12px; border:1px solid var(--border); background:var(--bg); cursor:pointer;
+    font-size:13px; transition:all 0.15s;
+  }
+  .drill-option:hover { border-color:var(--accent); }
+  .drill-option.selected { border-color:var(--accent); background:rgba(232,255,0,0.05); }
+  .drill-name { font-weight:600; }
+  .drill-desc { font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; }
+
+  /* Metronome */
+  .metro-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; }
+  .metro-bpm-display { font-family:'Teko',sans-serif; font-size:40px; color:var(--accent); text-align:center; line-height:1; }
+  .metro-controls { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .metro-dot { width:14px; height:14px; border-radius:50%; background:var(--border); transition:background 0.05s; margin:0 auto; }
+  .metro-dot.beat { background:var(--accent); }
+
+  /* Section header */
+  .section-header { font-family:'Teko',sans-serif; font-size:18px; letter-spacing:2px; color:var(--text); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:5px; }
+
+  .empty-state { color:var(--muted); font-size:13px; text-align:center; padding:16px; font-style:italic; }
+
+  /* Flash */
+  .shot-flash { position:absolute; inset:0; background:rgba(255,48,48,0.18); pointer-events:none; animation:flashout 0.35s ease forwards; z-index:10; }
+  @keyframes flashout { 0%{opacity:1} 100%{opacity:0} }
+
+  /* ── CALLOUT OVERLAY ── */
+  #callout-overlay {
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; z-index:10000; opacity:0; transition:opacity 0.25s;
+  }
+  #callout-overlay.show { opacity:1; }
+  .callout-box { text-align:center; animation:calloutPop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes calloutPop { 0%{transform:scale(0.5) translateY(30px);opacity:0} 100%{transform:scale(1) translateY(0);opacity:1} }
+  .callout-streak { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-bottom:6px; }
+  .callout-quote { font-family:'Teko',sans-serif; font-size:clamp(26px,5vw,58px); font-weight:700; letter-spacing:2px; line-height:1.1; text-shadow:0 0 40px currentColor,0 4px 20px rgba(0,0,0,0.8); padding:18px 36px; border-top:3px solid currentColor; border-bottom:3px solid currentColor; background:rgba(0,0,0,0.88); backdrop-filter:blur(4px); max-width:80vw; }
+  .callout-source { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:3px; color:rgba(255,255,255,0.45); margin-top:7px; text-transform:uppercase; }
+  .callout-bourne .callout-quote { color:#00c8ff; }
+  .callout-halo .callout-quote { color:#e8ff00; }
+  .callout-epic .callout-quote { color:#00ff88; }
+
+  /* ── DRILL COMPLETE OVERLAY ── */
+  #drill-complete {
+    position:fixed; inset:0; background:rgba(0,0,0,0.85);
+    display:none; align-items:center; justify-content:center; z-index:9000;
+  }
+  #drill-complete.show { display:flex; }
+  .drill-result-box { background:var(--surface); border:1px solid var(--accent); padding:32px 48px; text-align:center; max-width:400px; }
+  .drill-result-title { font-family:'Teko',sans-serif; font-size:36px; letter-spacing:3px; color:var(--accent); }
+  .drill-result-stats { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--muted); line-height:2; margin:16px 0; text-align:left; }
+  .drill-result-stats span { color:var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">LASER<span>TRAINER</span> PRO</div>
+  <div class="session-info" id="session-info">SESSION: --<br>SHOTS: 0 | SCORE: --</div>
+</header>
+
+<div class="main">
+  <!-- ═══ LEFT PANEL ═══ -->
+  <div class="left-panel">
+    <div class="camera-container" id="camera-container">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="overlay-canvas"></canvas>
+      <div id="camera-off-msg" class="camera-off-msg">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        <span>Camera inactive — press START CAMERA</span>
+        <span style="font-size:12px;font-family:monospace">or use Manual Target below</span>
+      </div>
+      <div class="detection-status" id="detection-status">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">OFFLINE</span>
+      </div>
+      <!-- Drill HUD -->
+      <div class="drill-hud" id="drill-hud">
+        <div class="drill-label">TIME</div>
+        <div class="drill-timer" id="drill-timer">00.0</div>
+        <div class="drill-label">SHOTS LEFT</div>
+        <div class="drill-shots-left" id="drill-shots-disp">—</div>
+      </div>
+      <!-- Group analysis mini-HUD -->
+      <div class="group-hud" id="group-hud">
+        <div class="group-hud-title">GROUP ANALYSIS</div>
+        <div class="group-hud-val" id="group-hud-val" style="color:var(--blue)">—</div>
+      </div>
+    </div>
+
+    <!-- Session bar -->
+    <div class="session-stats-bar">
+      <div class="session-stat"><span class="session-stat-val" id="bar-shots">0</span><span>SHOTS</span></div>
+      <div class="session-stat"><span class="session-stat-val" id="bar-hits">0</span><span>HITS</span></div>
+      <div class="session-stat"><span class="session-stat-val" id="bar-pct">--%</span><span>HIT RATE</span></div>
+      <div class="session-stat"><span class="session-stat-val" id="bar-avg">--</span><span>AVG SCORE</span></div>
+      <div class="session-stat"><span class="session-stat-val" id="bar-split">--</span><span>AVG SPLIT</span></div>
+      <div class="session-stat"><span class="session-stat-val" id="bar-streak">0</span><span>STREAK</span></div>
+    </div>
+
+    <!-- Controls row 1 -->
+    <div class="camera-controls">
+      <div class="ctrl-row">
+        <button class="btn primary" id="btn-camera" onclick="toggleCamera()">START CAMERA</button>
+        <button class="btn" id="btn-detect" onclick="toggleDetection()" disabled>ENABLE DETECT</button>
+        <button class="btn warn" id="btn-calibrate" onclick="calibrateBackground()" disabled>CALIBRATE</button>
+        <button class="btn" onclick="manualShot()" id="btn-manual">MANUAL SHOT</button>
+        <button class="btn danger" onclick="clearSession()">CLEAR</button>
+        <button class="btn" onclick="exportPDF()" style="margin-left:auto">⬇ EXPORT</button>
+      </div>
+      <div class="ctrl-row">
+        <button class="btn" onclick="testCallout()" style="font-size:12px">🔊 TEST CALLOUT</button>
+        <!-- Laser color -->
+        <div class="ctrl-group">
+          LASER:
+          <select id="laser-color" onchange="updateLaserColor()">
+            <option value="red">RED</option>
+            <option value="green">GREEN</option>
+          </select>
+        </div>
+        <!-- Target type -->
+        <div class="ctrl-group">
+          TARGET:
+          <select id="target-type" onchange="redrawManual()">
+            <option value="bullseye">BULLSEYE</option>
+            <option value="idpa">IDPA</option>
+            <option value="ipsc">IPSC/USPSA</option>
+            <option value="nra">NRA B-8</option>
+          </select>
+        </div>
+        <!-- Sensitivity -->
+        <div class="ctrl-group" style="margin-left:auto">
+          SENS:
+          <input type="range" id="sensitivity" min="10" max="100" value="40">
+          <span id="sens-val">40</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT PANEL ═══ -->
+  <div class="right-panel">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('stats')">STATS</div>
+      <div class="tab" onclick="switchTab('drills')">DRILLS</div>
+      <div class="tab" onclick="switchTab('history')">LOG</div>
+      <div class="tab" onclick="switchTab('coach')">COACH</div>
+    </div>
+
+    <!-- STATS TAB -->
+    <div class="tab-content active" id="tab-stats">
+      <div class="section-header">Session</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Hit Rate</div><div class="stat-value green" id="stat-hitrate">--%</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Score</div><div class="stat-value blue" id="stat-avgscore">--</div></div>
+        <div class="stat-card"><div class="stat-label">Total Shots</div><div class="stat-value" id="stat-total">0</div></div>
+        <div class="stat-card"><div class="stat-label">Bullseye Streak</div><div class="stat-value" id="stat-streak">0</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Split Time</div><div class="stat-value blue" id="stat-split">--</div></div>
+        <div class="stat-card"><div class="stat-label">Best Split</div><div class="stat-value green" id="stat-bestsplit">--</div></div>
+      </div>
+
+      <div class="section-header">Zone Breakdown</div>
+      <div class="zone-breakdown" id="zone-breakdown"></div>
+
+      <!-- Group Analysis card -->
+      <div class="group-card" id="group-card">
+        <div class="group-card-title">📍 Group Analysis</div>
+        <div class="group-detail" id="group-detail">Fire 3+ shots to see grouping data.</div>
+      </div>
+
+      <div class="section-header">Manual Target</div>
+      <div class="target-panel">
+        <div class="panel-label">Click to log shot manually</div>
+        <canvas id="manual-target" width="220" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- DRILLS TAB -->
+    <div class="tab-content" id="tab-drills">
+      <div class="section-header">Drill Mode</div>
+      <div class="drill-panel">
+        <div class="drill-panel-title">Select a Drill</div>
+        <div class="drill-options" id="drill-options">
+          <div class="drill-option selected" data-drill="free" onclick="selectDrill(this,'free')">
+            <div><div class="drill-name">Free Practice</div><div class="drill-desc">No timer · unlimited shots</div></div>
+          </div>
+          <div class="drill-option" data-drill="bill" onclick="selectDrill(this,'bill')">
+            <div><div class="drill-name">Bill Drill</div><div class="drill-desc">6 shots · draw to fire · time scored</div></div>
+          </div>
+          <div class="drill-option" data-drill="5x5" onclick="selectDrill(this,'5x5')">
+            <div><div class="drill-name">5×5 Drill</div><div class="drill-desc">5 shots · 5 seconds · score 25</div></div>
+          </div>
+          <div class="drill-option" data-drill="firstshot" onclick="selectDrill(this,'firstshot')">
+            <div><div class="drill-name">Draw to First Shot</div><div class="drill-desc">1 shot · track reaction time</div></div>
+          </div>
+          <div class="drill-option" data-drill="10shot" onclick="selectDrill(this,'10shot')">
+            <div><div class="drill-name">10-Shot String</div><div class="drill-desc">10 shots · 15 seconds · accuracy focus</div></div>
+          </div>
+        </div>
+        <button class="btn primary" id="btn-start-drill" onclick="startDrill()">START DRILL</button>
+        <button class="btn danger" id="btn-stop-drill" onclick="stopDrill()" style="display:none">ABORT DRILL</button>
+      </div>
+
+      <div class="section-header">Metronome</div>
+      <div class="metro-panel">
+        <div class="metro-dot" id="metro-dot"></div>
+        <div class="metro-bpm-display" id="metro-bpm">80 BPM</div>
+        <div class="metro-controls">
+          <button class="btn" onclick="changeBPM(-10)">−10</button>
+          <button class="btn" onclick="changeBPM(-5)">−5</button>
+          <button class="btn primary" id="btn-metro" onclick="toggleMetro()">START</button>
+          <button class="btn" onclick="changeBPM(5)">+5</button>
+          <button class="btn" onclick="changeBPM(10)">+10</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);font-family:monospace;text-align:center;margin-top:6px">Train shot cadence under timed pressure</div>
+      </div>
+
+      <div class="section-header">Drill History</div>
+      <div id="drill-history-list">
+        <div class="empty-state">No drills completed yet.</div>
+      </div>
+    </div>
+
+    <!-- LOG TAB -->
+    <div class="tab-content" id="tab-history">
+      <div class="section-header">Shot Log</div>
+      <div class="shot-log" id="shot-log"><div class="empty-state">No shots recorded yet.</div></div>
+      <div class="chart-wrap">
+        <div class="chart-title">Score Trend — Last 20 Shots</div>
+        <canvas id="history-canvas" width="300" height="110"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Split Times (seconds)</div>
+        <canvas id="split-canvas" width="300" height="80"></canvas>
+      </div>
+    </div>
+
+    <!-- COACH TAB -->
+    <div class="tab-content" id="tab-coach">
+      <div class="section-header">AI Coach</div>
+      <div class="tip-card">
+        <div class="tip-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Analysis
+        </div>
+        <div class="tip-body" id="tip-body">Fire at least 5 shots to get coaching analysis.</div>
+      </div>
+      <button class="btn" onclick="fetchCoachTip()" style="align-self:flex-start">REFRESH ANALYSIS</button>
+
+      <div class="section-header">All-Time Stats</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Sessions</div><div class="stat-value" id="all-sessions">0</div></div>
+        <div class="stat-card"><div class="stat-label">All Shots</div><div class="stat-value" id="all-shots">0</div></div>
+        <div class="stat-card"><div class="stat-label">Lifetime Avg</div><div class="stat-value blue" id="all-avg">--</div></div>
+        <div class="stat-card"><div class="stat-label">Best Session</div><div class="stat-value green" id="best-session">--</div></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Session Averages</div>
+        <canvas id="session-history-canvas" width="300" height="90"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAYS ═══ -->
+<div id="callout-overlay">
+  <div class="callout-box" id="callout-box">
+    <div class="callout-streak" id="callout-streak"></div>
+    <div class="callout-quote" id="callout-quote"></div>
+    <div class="callout-source" id="callout-source"></div>
+  </div>
+</div>
+
+<div id="drill-complete">
+  <div class="drill-result-box">
+    <div class="drill-result-title" id="dc-title">DRILL COMPLETE</div>
+    <div class="drill-result-stats" id="dc-stats"></div>
+    <button class="btn primary" onclick="document.getElementById('drill-complete').classList.remove('show')">CLOSE</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let cameraActive = false, detectionActive = false;
+let stream = null, animFrame = null;
+let shotCooldown = false, shotCooldownMs = 1200;
+
+// Smart detection state
+let laserCandidate = null;
+let candidateFrames = 0;
+const FRAMES_REQUIRED = 2;    // 2 frames ~67ms — catches short laser pulses
+const CLUSTER_RADIUS = 0.05;
+const MIN_CLUSTER_PX = 3;
+
+// Background subtraction
+let bgImageData = null;        // baseline frame captured at calibration
+let bgCaptured = false;
+const BG_DIFF_THRESHOLD = 35;  // pixel must be this much brighter than baseline
+
+let laserMode = 'red';
+
+let session = { id: Date.now(), shots: [], startTime: new Date() };
+let allHistory = JSON.parse(localStorage.getItem('ltp_history') || '[]');
+let drillHistory = JSON.parse(localStorage.getItem('ltp_drills') || '[]');
+
+// Drill state
+let activeDrill = null;
+let drillStartTime = null, drillTimerInterval = null;
+let drillShotsRemaining = 0, drillShotsThisRun = [];
+let selectedDrillKey = 'free';
+const DRILLS = {
+  bill:      { name:'Bill Drill', shots:6, timeLimit:null },
+  '5x5':     { name:'5×5 Drill', shots:5, timeLimit:5000 },
+  firstshot: { name:'Draw to First Shot', shots:1, timeLimit:null },
+  '10shot':  { name:'10-Shot String', shots:10, timeLimit:15000 },
+  free:      { name:'Free Practice', shots:null, timeLimit:null }
+};
+
+// Metronome
+let metroBPM = 80, metroActive = false, metroInterval = null;
+
+// Callout
+let lastCalloutAt = 0, calloutTimeout = null;
+
+// ═══════════════════════════════════════════
+// SENSITIVITY / LASER COLOR
+// ═══════════════════════════════════════════
+const sensitivitySlider = document.getElementById('sensitivity');
+const sensValEl = document.getElementById('sens-val');
+sensitivitySlider.addEventListener('input', () => sensValEl.textContent = sensitivitySlider.value);
+
+function updateLaserColor() {
+  laserMode = document.getElementById('laser-color').value;
+}
+
+// ═══════════════════════════════════════════
+// CAMERA
+// ═══════════════════════════════════════════
+async function toggleCamera() {
+  if (!cameraActive) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+      });
+      const vid = document.getElementById('video');
+      vid.srcObject = stream; vid.style.display = 'block';
+      document.getElementById('camera-off-msg').style.display = 'none';
+      cameraActive = true;
+      document.getElementById('btn-camera').textContent = 'STOP CAMERA';
+      document.getElementById('btn-camera').className = 'btn danger';
+      document.getElementById('btn-detect').disabled = false;
+      document.getElementById('btn-calibrate').disabled = false;
+      setStatus('live', 'LIVE');
+      startOverlayLoop();
+    } catch(e) {
+      alert('Camera access denied. Use Manual Target instead.');
+    }
+  } else {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    document.getElementById('video').srcObject = null;
+    document.getElementById('video').style.display = 'none';
+    document.getElementById('camera-off-msg').style.display = 'flex';
+    cameraActive = false; detectionActive = false;
+    bgCaptured = false; bgImageData = null;
+    laserCandidate = null; candidateFrames = 0;
+    document.getElementById('btn-camera').textContent = 'START CAMERA';
+    document.getElementById('btn-camera').className = 'btn primary';
+    document.getElementById('btn-detect').textContent = 'ENABLE DETECT';
+    document.getElementById('btn-detect').className = 'btn';
+    document.getElementById('btn-detect').disabled = true;
+    document.getElementById('btn-calibrate').disabled = true;
+    setStatus('', 'OFFLINE');
+    if (animFrame) cancelAnimationFrame(animFrame);
+  }
+}
+
+function toggleDetection() {
+  detectionActive = !detectionActive;
+  laserCandidate = null;
+  candidateFrames = 0;
+  const btn = document.getElementById('btn-detect');
+  if (detectionActive) {
+    btn.textContent = 'DETECTION ON'; btn.className = 'btn active';
+    setStatus('detecting', 'DETECTING');
+  } else {
+    btn.textContent = 'ENABLE DETECT'; btn.className = 'btn';
+    setStatus('live', 'LIVE');
+  }
+}
+
+function setStatus(cls, text) {
+  document.getElementById('status-dot').className = 'status-dot' + (cls ? ' ' + cls : '');
+  document.getElementById('status-text').textContent = text;
+}
+
+// ═══════════════════════════════════════════
+// BACKGROUND CALIBRATION
+// ═══════════════════════════════════════════
+function calibrateBackground() {
+  const canvas = document.getElementById('overlay-canvas');
+  const ctx = canvas.getContext('2d');
+  const video = document.getElementById('video');
+  if (!cameraActive || video.readyState < 2) {
+    alert('Start camera first, then calibrate.');
+    return;
+  }
+  // Draw current frame and grab pixel data as baseline
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  bgImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  bgCaptured = true;
+  laserCandidate = null;
+  candidateFrames = 0;
+
+  // Flash the button green briefly
+  const btn = document.getElementById('btn-calibrate');
+  btn.textContent = '✓ CALIBRATED';
+  btn.className = 'btn active';
+  setTimeout(() => {
+    btn.textContent = 'CALIBRATE';
+    btn.className = 'btn warn';
+  }, 2000);
+  setStatus('live', 'CALIBRATED');
+}
+
+// ═══════════════════════════════════════════
+// OVERLAY LOOP
+// ═══════════════════════════════════════════
+function startOverlayLoop() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('overlay-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function loop() {
+    if (!cameraActive) return;
+    if (video.readyState >= 2) {
+      canvas.width = video.videoWidth || canvas.offsetWidth;
+      canvas.height = video.videoHeight || canvas.offsetHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      if (detectionActive && !shotCooldown) {
+        const hit = detectLaser(ctx, canvas.width, canvas.height);
+
+        if (hit) {
+          // Check if this is the same spot as last frame (within cluster radius)
+          const sameSpot = laserCandidate &&
+            Math.abs(hit.x - laserCandidate.x) < CLUSTER_RADIUS &&
+            Math.abs(hit.y - laserCandidate.y) < CLUSTER_RADIUS;
+
+          if (sameSpot) {
+            candidateFrames++;
+            // Average position for stability
+            laserCandidate.x = (laserCandidate.x + hit.x) / 2;
+            laserCandidate.y = (laserCandidate.y + hit.y) / 2;
+          } else {
+            // New position — reset candidate
+            laserCandidate = { x: hit.x, y: hit.y };
+            candidateFrames = 1;
+          }
+
+          // Draw candidate indicator (yellow dot = tracking, not yet fired)
+          const px = laserCandidate.x * canvas.width;
+          const py = laserCandidate.y * canvas.height;
+          const progress = candidateFrames / FRAMES_REQUIRED;
+          ctx.beginPath();
+          ctx.arc(px, py, 12, 0, Math.PI * 2 * progress);
+          ctx.strokeStyle = candidateFrames >= FRAMES_REQUIRED ? '#00ff88' : '#e8ff00';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(px, py, 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#ff3030';
+          ctx.fill();
+
+          // Fire shot only after enough consistent frames
+          if (candidateFrames >= FRAMES_REQUIRED) {
+            triggerShotFromCamera(laserCandidate, canvas.width, canvas.height);
+            laserCandidate = null;
+            candidateFrames = 0;
+          }
+
+        } else {
+          // No laser detected this frame — decay candidate
+          candidateFrames = Math.max(0, candidateFrames - 1);
+          if (candidateFrames === 0) laserCandidate = null;
+        }
+      } else if (!detectionActive) {
+        // Reset when detection is off
+        laserCandidate = null;
+        candidateFrames = 0;
+      }
+
+      drawCameraOverlay(ctx, canvas.width, canvas.height);
+    }
+    animFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function drawCameraOverlay(ctx, w, h) {
+  // Corner markers
+  ctx.strokeStyle = 'rgba(232,255,0,0.6)'; ctx.lineWidth = 2;
+  [[0,0],[w,0],[0,h],[w,h]].forEach(([x,y]) => {
+    const sx = x === 0 ? 10 : w-10, sy = y === 0 ? 10 : h-10;
+    ctx.beginPath();
+    ctx.moveTo(sx, y===0?10:h-28); ctx.lineTo(sx, y===0?28:h-10);
+    ctx.moveTo(x===0?10:w-28, sy); ctx.lineTo(x===0?28:w-10, sy);
+    ctx.stroke();
+  });
+}
+
+// ═══════════════════════════════════════════
+// LASER DETECTION — bg subtraction + 632-650nm tuning
+// ═══════════════════════════════════════════
+function detectLaser(ctx, w, h) {
+  const imageData = ctx.getImageData(0, 0, w, h);
+  const data = imageData.data;
+  const threshold = parseInt(sensitivitySlider.value);
+  const bgData = bgCaptured ? bgImageData.data : null;
+
+  let maxScore = 0, bx = -1, by = -1;
+
+  for (let y = 0; y < h; y += 2) {
+    for (let x = 0; x < w; x += 2) {
+      const i = (y * w + x) * 4;
+      const r = data[i], g = data[i+1], b = data[i+2];
+
+      // Background subtraction — skip pixels that look like baseline
+      if (bgData) {
+        const br = bgData[i], bg2 = bgData[i+1], bb = bgData[i+2];
+        const rDiff = r - br, gDiff = g - bg2, bDiff = b - bb;
+        // Must be significantly brighter than baseline in the right channel
+        if (laserMode === 'red' && rDiff < BG_DIFF_THRESHOLD) continue;
+        if (laserMode === 'green' && gDiff < BG_DIFF_THRESHOLD) continue;
+      }
+
+      let score = 0;
+      if (laserMode === 'red') {
+        // 632-650nm: very high R, G should be near zero, B near zero
+        // Typical camera response: R≈240-255, G<60, B<40 for this wavelength
+        if (r > 200 && g < 80 && b < 70) {
+          // Ratio test: R must dominate strongly
+          const ratio = r / (Math.max(g, b, 1));
+          if (ratio > 3.5) score = r - Math.max(g, b);
+        }
+      } else {
+        // 520nm green: high G, very low R and B
+        if (g > 200 && r < 80 && b < 70) {
+          const ratio = g / (Math.max(r, b, 1));
+          if (ratio > 3.5) score = g - Math.max(r, b);
+        }
+      }
+
+      if (score > threshold && score > maxScore) {
+        maxScore = score; bx = x; by = y;
+      }
+    }
+  }
+
+  if (bx < 0) return null;
+
+  // Cluster check — count qualifying pixels near brightest point
+  const searchR = 10;
+  let clusterCount = 0;
+  for (let dy = -searchR; dy <= searchR; dy += 2) {
+    for (let dx = -searchR; dx <= searchR; dx += 2) {
+      const nx = bx + dx, ny = by + dy;
+      if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+      const i = (ny * w + nx) * 4;
+      const r = data[i], g = data[i+1], b = data[i+2];
+      if (laserMode === 'red'   && r > 180 && g < 100 && b < 90)  clusterCount++;
+      if (laserMode === 'green' && g > 180 && r < 100 && b < 90)  clusterCount++;
+    }
+  }
+
+  if (clusterCount < MIN_CLUSTER_PX) return null;
+
+  return { x: bx/w, y: by/h, brightness: maxScore, cluster: clusterCount };
+}
+
+function triggerShotFromCamera(pos, w, h) {
+  const cx = 0.5, cy = 0.5, targetRadius = 0.30;
+  const dx = (pos.x - cx) / targetRadius;
+  const dy = (pos.y - cy) / targetRadius;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const zone = distToZone(dist);
+  recordShot(zone, pos.x, pos.y, 'camera');
+  flashCamera();
+  shotCooldown = true;
+  setTimeout(() => shotCooldown = false, shotCooldownMs);
+}
+
+// ═══════════════════════════════════════════
+// MANUAL TARGET
+// ═══════════════════════════════════════════
+const manualCanvas = document.getElementById('manual-target');
+const manualCtx = manualCanvas.getContext('2d');
+
+function getTargetConfig() {
+  const t = document.getElementById('target-type').value;
+  const configs = {
+    bullseye: {
+      rings: [
+        {r:1.0, color:'#2a2d35'}, {r:0.85, color:'#3a1a1a'},
+        {r:0.67, color:'#1a1a3a'}, {r:0.5, color:'#1a2a1a'},
+        {r:0.33, color:'#2a2a00'}, {r:0.15, color:'#e8ff00'},
+      ],
+      labels: ['MISS','7','8','9','10','X'],
+      zones: [1.0, 0.85, 0.67, 0.5, 0.33, 0.15]
+    },
+    idpa: {
+      rings: [
+        {r:1.0, color:'#2a2d35'}, {r:0.8, color:'#2a1a10'},
+        {r:0.55, color:'#1a2a1a'}, {r:0.3, color:'#2a2a00'},
+      ],
+      labels:['MISS','3','2','1'],
+      zones: [1.0, 0.8, 0.55, 0.3]
+    },
+    ipsc: {
+      rings: [
+        {r:1.0, color:'#2a2d35'}, {r:0.85, color:'#2a1a10'},
+        {r:0.6, color:'#1a1a3a'}, {r:0.35, color:'#2a2a00'},
+      ],
+      labels:['MISS','D','C','A'],
+      zones: [1.0, 0.85, 0.6, 0.35]
+    },
+    nra: {
+      rings: [
+        {r:1.0, color:'#2a2d35'}, {r:0.9, color:'#2a1a1a'},
+        {r:0.75, color:'#1a1a2a'}, {r:0.58, color:'#1a2020'},
+        {r:0.42, color:'#1a2a1a'}, {r:0.27, color:'#2a2a00'},
+        {r:0.13, color:'#e8ff00'},
+      ],
+      labels:['MISS','5','6','7','8','9','10'],
+      zones: [1.0, 0.9, 0.75, 0.58, 0.42, 0.27, 0.13]
+    }
+  };
+  return configs[t] || configs.bullseye;
+}
+
+function distToZone(dist) {
+  const cfg = getTargetConfig();
+  for (let i = cfg.zones.length - 1; i >= 0; i--) {
+    if (dist <= cfg.zones[i]) return cfg.labels[i];
+  }
+  return cfg.labels[0];
+}
+
+function redrawManual() { drawManualTarget(session.shots); }
+
+function drawManualTarget(shots) {
+  const W = manualCanvas.width, H = manualCanvas.height;
+  const cx = W/2, cy = H/2, maxR = W/2 - 6;
+  const cfg = getTargetConfig();
+  manualCtx.clearRect(0, 0, W, H);
+
+  manualCtx.fillStyle = '#1a1d24'; manualCtx.fillRect(0, 0, W, H);
+
+  // Rings (outer to inner)
+  cfg.rings.forEach(ring => {
+    manualCtx.beginPath();
+    manualCtx.arc(cx, cy, maxR * ring.r, 0, Math.PI * 2);
+    manualCtx.fillStyle = ring.color; manualCtx.fill();
+    manualCtx.strokeStyle = 'rgba(255,255,255,0.1)';
+    manualCtx.lineWidth = 1; manualCtx.stroke();
+  });
+
+  // Crosshair
+  manualCtx.strokeStyle = 'rgba(255,255,255,0.12)';
+  manualCtx.lineWidth = 1; manualCtx.setLineDash([3,6]);
+  manualCtx.beginPath(); manualCtx.moveTo(cx,0); manualCtx.lineTo(cx,H); manualCtx.stroke();
+  manualCtx.beginPath(); manualCtx.moveTo(0,cy); manualCtx.lineTo(W,cy); manualCtx.stroke();
+  manualCtx.setLineDash([]);
+
+  // Shot dots
+  shots.slice(-30).forEach((shot, i) => {
+    if (shot.px == null) return;
+    const sx = shot.px * W, sy = shot.py * H;
+    const alpha = 0.35 + 0.65 * ((i+1) / Math.min(shots.length, 30));
+    manualCtx.beginPath();
+    manualCtx.arc(sx, sy, 5, 0, Math.PI * 2);
+    manualCtx.fillStyle = `rgba(255,48,48,${alpha})`; manualCtx.fill();
+    manualCtx.strokeStyle = 'rgba(255,255,255,0.7)';
+    manualCtx.lineWidth = 1; manualCtx.stroke();
+  });
+
+  // Draw centroid if enough shots
+  const withPos = shots.filter(s => s.px != null && s.zone !== 'MISS');
+  if (withPos.length >= 3) {
+    const cx2 = withPos.reduce((a,s) => a + s.px, 0) / withPos.length * W;
+    const cy2 = withPos.reduce((a,s) => a + s.py, 0) / withPos.length * H;
+    manualCtx.beginPath();
+    manualCtx.arc(cx2, cy2, 7, 0, Math.PI * 2);
+    manualCtx.strokeStyle = '#00ff88'; manualCtx.lineWidth = 2;
+    manualCtx.setLineDash([3,3]); manualCtx.stroke();
+    manualCtx.setLineDash([]);
+    // crosshair through centroid
+    manualCtx.strokeStyle = 'rgba(0,255,136,0.5)'; manualCtx.lineWidth = 1;
+    manualCtx.beginPath(); manualCtx.moveTo(cx2-8,cy2); manualCtx.lineTo(cx2+8,cy2); manualCtx.stroke();
+    manualCtx.beginPath(); manualCtx.moveTo(cx2,cy2-8); manualCtx.lineTo(cx2,cy2+8); manualCtx.stroke();
+  }
+}
+
+manualCanvas.addEventListener('click', (e) => {
+  const rect = manualCanvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) / rect.width;
+  const py = (e.clientY - rect.top) / rect.height;
+  const maxR = 0.5 - 6/manualCanvas.width;
+  const dx = (px - 0.5) / maxR, dy = (py - 0.5) / maxR;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const zone = distToZone(dist);
+  recordShot(zone, px, py, 'manual');
+});
+
+// ═══════════════════════════════════════════
+// ZONE HELPERS
+// ═══════════════════════════════════════════
+function zoneScore(zone) {
+  const map = { 'X':10,'10':10,'9':9,'8':8,'7':7,'A':5,'C':3,'D':1,'1':5,'2':3,'3':1,'MISS':0,'miss':0 };
+  return map[zone] ?? 0;
+}
+
+function zoneClass(zone) {
+  const s = zoneScore(zone);
+  if (s >= 10) return 'z10';
+  if (s >= 9)  return 'z9';
+  if (s >= 8)  return 'z8';
+  if (s >= 1)  return 'z7';
+  return 'zmiss';
+}
+
+function zoneColor(zone) {
+  const cls = zoneClass(zone);
+  return {z10:'#e8ff00',z9:'#aaff00',z8:'#00c8ff',z7:'#7c7cff',zmiss:'#ff2222'}[cls] || '#888';
+}
+
+// ═══════════════════════════════════════════
+// RECORD SHOT
+// ═══════════════════════════════════════════
+function recordShot(zone, px, py, source) {
+  const now = Date.now();
+  const prev = session.shots.length ? session.shots[session.shots.length-1] : null;
+  const split = prev ? (now - prev.id) / 1000 : null;
+
+  const shot = { id: now, zone, score: zoneScore(zone), px, py, source, split,
+    time: new Date().toLocaleTimeString() };
+  session.shots.push(shot);
+
+  // Drill integration
+  if (activeDrill) {
+    drillShotsThisRun.push(shot);
+    drillShotsRemaining--;
+    document.getElementById('drill-shots-disp').textContent = drillShotsRemaining;
+    if (drillShotsRemaining <= 0) completeDrill();
+  }
+
+  updateAll();
+  checkStreakCallouts();
+
+  if (session.shots.length >= 5 && session.shots.length % 5 === 0) fetchCoachTip();
+}
+
+function manualShot() {
+  const angle = Math.random() * Math.PI * 2;
+  const dist = Math.random() * 0.85 + 0.05;
+  const px = 0.5 + Math.cos(angle) * dist * 0.45;
+  const py = 0.5 + Math.sin(angle) * dist * 0.45;
+  recordShot(distToZone(dist), px, py, 'manual');
+}
+
+// ═══════════════════════════════════════════
+// STREAK CALLOUTS
+// ═══════════════════════════════════════════
+function checkStreakCallouts() {
+  const shots = session.shots;
+  let streak = 0;
+  for (let i = shots.length-1; i >= 0; i--) {
+    const z = shots[i].zone;
+    if (z === 'X' || z === '10' || z === 'A') streak++;
+    else break;
+  }
+
+  if (streak === 5 && lastCalloutAt !== 5) {
+    lastCalloutAt = 5;
+    showCallout('"Jesus Christ... it\'s Jason Bourne."', '— The Bourne Ultimatum (2007)', '🎯 5 BULLSEYES IN A ROW', 'bourne');
+    speak("Jesus Christ, it's Jason Bourne.");
+  } else if (streak === 10 && lastCalloutAt !== 10) {
+    lastCalloutAt = 10;
+    showCallout('"Unfrigginbelievable!"', '— Halo · Sergeant Johnson', '🔥 10 BULLSEYES IN A ROW', 'halo');
+    speak("Unfrigginbelievable!");
+  } else if (streak > 10 && streak % 5 === 0 && lastCalloutAt !== streak) {
+    lastCalloutAt = streak;
+    showCallout(`${streak} STRAIGHT.`, 'YOU ARE A WEAPON.', `💀 ${streak} BULLSEYES IN A ROW`, 'epic');
+    speak(`${streak} straight. You are a weapon.`);
+  } else if (streak === 0) {
+    lastCalloutAt = 0;
+  }
+}
+
+function showCallout(quote, source, label, theme) {
+  document.getElementById('callout-quote').textContent = quote;
+  document.getElementById('callout-source').textContent = source;
+  document.getElementById('callout-streak').textContent = label;
+  const box = document.getElementById('callout-box');
+  box.className = `callout-box callout-${theme}`;
+  box.style.animation = 'none'; void box.offsetWidth; box.style.animation = '';
+  const overlay = document.getElementById('callout-overlay');
+  overlay.classList.add('show');
+  if (calloutTimeout) clearTimeout(calloutTimeout);
+  calloutTimeout = setTimeout(() => overlay.classList.remove('show'), 3800);
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.95; u.pitch = 1.0; u.volume = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+function testCallout() {
+  // Unlock audio on iOS (requires user gesture) and test both visual + speech
+  showCallout('"Jesus Christ... it\'s Jason Bourne."', '— The Bourne Ultimatum (2007)', '🎯 AUDIO TEST', 'bourne');
+  speak("Jesus Christ, it's Jason Bourne.");
+}
+
+// ═══════════════════════════════════════════
+// DRILLS
+// ═══════════════════════════════════════════
+function selectDrill(el, key) {
+  document.querySelectorAll('.drill-option').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDrillKey = key;
+}
+
+function startDrill() {
+  const def = DRILLS[selectedDrillKey];
+  activeDrill = { ...def, key: selectedDrillKey };
+  drillStartTime = Date.now();
+  drillShotsRemaining = def.shots || 999;
+  drillShotsThisRun = [];
+
+  document.getElementById('btn-start-drill').style.display = 'none';
+  document.getElementById('btn-stop-drill').style.display = 'inline-block';
+  document.getElementById('drill-hud').classList.add('active');
+  document.getElementById('drill-shots-disp').textContent = drillShotsRemaining === 999 ? '∞' : drillShotsRemaining;
+
+  // Start timer
+  drillTimerInterval = setInterval(() => {
+    const elapsed = (Date.now() - drillStartTime) / 1000;
+    document.getElementById('drill-timer').textContent = elapsed.toFixed(1);
+    // Time limit check
+    if (activeDrill.timeLimit && (Date.now() - drillStartTime) >= activeDrill.timeLimit) {
+      completeDrill();
+    }
+  }, 100);
+}
+
+function completeDrill() {
+  if (!activeDrill) return;
+  const elapsed = (Date.now() - drillStartTime) / 1000;
+  clearInterval(drillTimerInterval);
+  drillTimerInterval = null;
+
+  const shots = drillShotsThisRun;
+  const totalScore = shots.reduce((a,s) => a + s.score, 0);
+  const hits = shots.filter(s => s.zone !== 'MISS' && s.zone !== 'miss');
+  const hitPct = shots.length ? Math.round(hits.length / shots.length * 100) : 0;
+  const splits = shots.filter(s => s.split != null).map(s => s.split);
+  const avgSplit = splits.length ? (splits.reduce((a,b)=>a+b,0)/splits.length).toFixed(2) : '--';
+
+  // Show result overlay
+  document.getElementById('dc-title').textContent = activeDrill.name + ' COMPLETE';
+  document.getElementById('dc-stats').innerHTML = `
+    <div>Time: <span>${elapsed.toFixed(2)}s</span></div>
+    <div>Shots: <span>${shots.length}</span></div>
+    <div>Total Score: <span>${totalScore}</span></div>
+    <div>Hit Rate: <span>${hitPct}%</span></div>
+    <div>Avg Split: <span>${avgSplit}s</span></div>
+  `;
+  document.getElementById('drill-complete').classList.add('show');
+
+  // Save to drill history
+  drillHistory.unshift({ name: activeDrill.name, date: new Date().toLocaleDateString(), time: elapsed.toFixed(2), score: totalScore, hitPct });
+  localStorage.setItem('ltp_drills', JSON.stringify(drillHistory.slice(0, 50)));
+  updateDrillHistory();
+
+  stopDrill();
+}
+
+function stopDrill() {
+  activeDrill = null;
+  clearInterval(drillTimerInterval);
+  drillTimerInterval = null;
+  document.getElementById('btn-start-drill').style.display = 'inline-block';
+  document.getElementById('btn-stop-drill').style.display = 'none';
+  document.getElementById('drill-hud').classList.remove('active');
+}
+
+function updateDrillHistory() {
+  const el = document.getElementById('drill-history-list');
+  if (!drillHistory.length) { el.innerHTML = '<div class="empty-state">No drills completed yet.</div>'; return; }
+  el.innerHTML = drillHistory.slice(0, 8).map(d => `
+    <div class="shot-entry z8" style="flex-direction:column;align-items:flex-start;gap:2px">
+      <span style="color:var(--blue);font-family:Teko,sans-serif;font-size:15px">${d.name}</span>
+      <span>${d.date} · ${d.time}s · Score: ${d.score} · Hits: ${d.hitPct}%</span>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+// METRONOME
+// ═══════════════════════════════════════════
+function toggleMetro() {
+  metroActive = !metroActive;
+  const btn = document.getElementById('btn-metro');
+  if (metroActive) {
+    btn.textContent = 'STOP'; btn.className = 'btn danger';
+    runMetro();
+  } else {
+    btn.textContent = 'START'; btn.className = 'btn primary';
+    clearInterval(metroInterval);
+    document.getElementById('metro-dot').classList.remove('beat');
+  }
+}
+
+function runMetro() {
+  clearInterval(metroInterval);
+  const ms = Math.round(60000 / metroBPM);
+  metroInterval = setInterval(() => {
+    const dot = document.getElementById('metro-dot');
+    dot.classList.add('beat');
+    // Click sound via AudioContext
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.08);
+      setTimeout(() => ctx.close(), 200);
+    } catch(e) {}
+    setTimeout(() => dot.classList.remove('beat'), Math.min(150, ms/2));
+  }, ms);
+}
+
+function changeBPM(delta) {
+  metroBPM = Math.max(30, Math.min(240, metroBPM + delta));
+  document.getElementById('metro-bpm').textContent = metroBPM + ' BPM';
+  if (metroActive) runMetro();
+}
+
+// ═══════════════════════════════════════════
+// GROUP ANALYSIS
+// ═══════════════════════════════════════════
+function analyzeGroup() {
+  const shots = session.shots.filter(s => s.px != null && s.zone !== 'MISS');
+  if (shots.length < 3) {
+    document.getElementById('group-detail').innerHTML = 'Fire 3+ hits to see grouping data.';
+    document.getElementById('group-hud').classList.remove('active');
+    return;
+  }
+
+  const xs = shots.map(s => s.px), ys = shots.map(s => s.py);
+  const cx = xs.reduce((a,b)=>a+b,0)/xs.length;
+  const cy = ys.reduce((a,b)=>a+b,0)/ys.length;
+
+  // Spread (average distance from centroid), in normalized coords → convert to "inches" estimate
+  const dists = shots.map(s => Math.sqrt((s.px-cx)**2 + (s.py-cy)**2));
+  const avgSpread = dists.reduce((a,b)=>a+b,0)/dists.length;
+  const maxSpread = Math.max(...dists);
+
+  // Bias direction (centroid offset from center)
+  const bx = cx - 0.5, by = cy - 0.5;
+  let bias = 'Centered';
+  const bMag = Math.sqrt(bx*bx + by*by);
+  if (bMag > 0.05) {
+    const dirs = [];
+    if (by < -0.05) dirs.push('HIGH'); else if (by > 0.05) dirs.push('LOW');
+    if (bx < -0.05) dirs.push('LEFT'); else if (bx > 0.05) dirs.push('RIGHT');
+    bias = dirs.join('-') || 'Centered';
+  }
+
+  // Coachable interpretation
+  const biasAdvice = {
+    'HIGH': 'Anticipating recoil or heeling — try a lighter grip.',
+    'LOW': 'Pushing down on trigger — focus on straight-back trigger press.',
+    'LEFT': 'Trigger finger pulling left — use only the pad of your finger.',
+    'RIGHT': 'Squeezing grip too hard with thumb — relax support hand.',
+    'HIGH-LEFT': 'Flinching up-left — slow down and focus on trigger control.',
+    'HIGH-RIGHT': 'Thumbing the gun — keep thumbs relaxed.',
+    'LOW-LEFT': 'Classic flinch/anticipation — dry fire practice recommended.',
+    'LOW-RIGHT': 'Jerking trigger — practice the press and follow-through.',
+    'Centered': 'Solid center hold. Focus on tightening your group size.'
+  }[bias] || '';
+
+  const spreadPct = Math.round(avgSpread * 200);
+  document.getElementById('group-detail').innerHTML =
+    `Centroid bias: <span style="color:${bMag > 0.1 ? 'var(--red)' : bMag > 0.05 ? 'var(--accent2)' : 'var(--green)'}">${bias}</span><br>` +
+    `Avg spread: <span>${spreadPct}%</span> of target radius<br>` +
+    `<span style="color:var(--muted);font-size:11px">${biasAdvice}</span>`;
+
+  document.getElementById('group-hud-val').textContent = bias + ' · ' + spreadPct + '% spread';
+  document.getElementById('group-hud').classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// UPDATE ALL UI
+// ═══════════════════════════════════════════
+function updateAll() {
+  updateSessionBar();
+  updateStats();
+  updateZoneBreakdown();
+  updateShotLog();
+  updateHistoryChart();
+  updateSplitChart();
+  drawManualTarget(session.shots);
+  updateAllTimeStats();
+  analyzeGroup();
+}
+
+function updateSessionBar() {
+  const s = session.shots;
+  const hits = s.filter(x => x.zone !== 'MISS');
+  const hitPct = s.length ? Math.round(hits.length/s.length*100) : null;
+  const avg = hits.length ? (hits.reduce((a,b)=>a+b.score,0)/hits.length).toFixed(1) : '--';
+  const splits = s.filter(x => x.split != null).map(x => x.split);
+  const avgSplit = splits.length ? (splits.reduce((a,b)=>a+b,0)/splits.length).toFixed(2)+'s' : '--';
+
+  let streak = 0;
+  for (let i=s.length-1;i>=0;i--) { if(s[i].zone!=='MISS')streak++; else break; }
+
+  document.getElementById('bar-shots').textContent = s.length;
+  document.getElementById('bar-hits').textContent = hits.length;
+  document.getElementById('bar-pct').textContent = hitPct != null ? hitPct+'%' : '--%';
+  document.getElementById('bar-avg').textContent = avg;
+  document.getElementById('bar-split').textContent = avgSplit;
+  document.getElementById('bar-streak').textContent = streak;
+  document.getElementById('session-info').innerHTML =
+    `SESSION: ${new Date(session.id).toLocaleTimeString()}<br>SHOTS: ${s.length} | HIT: ${hitPct!=null?hitPct+'%':'--'}`;
+}
+
+function updateStats() {
+  const s = session.shots;
+  const hits = s.filter(x => x.zone !== 'MISS');
+  const hitPct = s.length ? Math.round(hits.length/s.length*100) : null;
+  const avg = hits.length ? (hits.reduce((a,b)=>a+b.score,0)/hits.length).toFixed(1) : '--';
+  const splits = s.filter(x => x.split != null).map(x => x.split);
+  const avgSplit = splits.length ? (splits.reduce((a,b)=>a+b,0)/splits.length).toFixed(2)+'s' : '--';
+  const bestSplit = splits.length ? Math.min(...splits).toFixed(2)+'s' : '--';
+
+  let streak = 0;
+  for (let i=s.length-1;i>=0;i--) {
+    const z = s[i].zone;
+    if(z==='X'||z==='10'||z==='A')streak++; else break;
+  }
+
+  document.getElementById('stat-hitrate').textContent = hitPct != null ? hitPct+'%' : '--%';
+  document.getElementById('stat-avgscore').textContent = avg;
+  document.getElementById('stat-total').textContent = s.length;
+  document.getElementById('stat-streak').textContent = streak;
+  document.getElementById('stat-split').textContent = avgSplit;
+  document.getElementById('stat-bestsplit').textContent = bestSplit;
+}
+
+function updateZoneBreakdown() {
+  const cfg = getTargetConfig();
+  const zones = cfg.labels;
+  const total = session.shots.length || 1;
+  const counts = {};
+  zones.forEach(z => counts[z] = 0);
+  session.shots.forEach(s => { if (counts[s.zone] !== undefined) counts[s.zone]++; });
+
+  document.getElementById('zone-breakdown').innerHTML = zones.map(z => {
+    const cnt = counts[z] || 0;
+    const pct = Math.round(cnt/total*100);
+    const cls = zoneClass(z);
+    return `<div>
+      <div class="zone-label"><span>${z === 'X' ? 'X-Ring' : z === 'MISS' ? 'Miss' : 'Zone '+z}</span>
+      <span style="color:${zoneColor(z)}">${cnt} (${pct}%)</span></div>
+      <div class="zone-bar-bg"><div class="zone-bar-fill ${cls}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function updateShotLog() {
+  const el = document.getElementById('shot-log');
+  if (!session.shots.length) { el.innerHTML = '<div class="empty-state">No shots recorded yet.</div>'; return; }
+  el.innerHTML = [...session.shots].reverse().map((s,i) => `
+    <div class="shot-entry ${zoneClass(s.zone)}">
+      <span class="shot-zone-badge" style="color:${zoneColor(s.zone)}">${s.zone}</span>
+      <span style="flex:1">#${session.shots.length-i} · ${s.time}</span>
+      <span style="color:var(--muted)">${s.split != null ? s.split.toFixed(2)+'s' : '--'}</span>
+      <span>${s.score > 0 ? '+'+s.score : 'MISS'}</span>
+    </div>
+  `).join('');
+}
+
+function updateHistoryChart() {
+  const canvas = document.getElementById('history-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth || 300;
+  const H = canvas.height = 110;
+  ctx.clearRect(0,0,W,H);
+  const shots = session.shots.slice(-20);
+  if (shots.length < 2) return;
+
+  const pad = 10;
+  for (let i=1;i<=10;i++) {
+    ctx.strokeStyle='rgba(42,45,53,0.8)'; ctx.lineWidth=1;
+    const y = H - (i/10)*H;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  }
+  const pts = shots.map((s,i) => ({
+    x: pad+(i/(shots.length-1))*(W-pad*2),
+    y: H-pad-(s.score/10)*(H-pad*2)
+  }));
+  ctx.beginPath(); ctx.moveTo(pts[0].x,H);
+  pts.forEach(p => ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,H); ctx.closePath();
+  ctx.fillStyle='rgba(232,255,0,0.07)'; ctx.fill();
+  ctx.beginPath(); pts.forEach((p,i) => i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='#e8ff00'; ctx.lineWidth=2; ctx.stroke();
+  pts.forEach((p,i) => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fillStyle=zoneColor(shots[i].zone); ctx.fill();
+  });
+}
+
+function updateSplitChart() {
+  const canvas = document.getElementById('split-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth || 300;
+  const H = canvas.height = 80;
+  ctx.clearRect(0,0,W,H);
+  const splits = session.shots.filter(s => s.split != null).slice(-15);
+  if (splits.length < 2) return;
+
+  const maxS = Math.max(...splits.map(s=>s.split), 3);
+  const pad = 8;
+  const pts = splits.map((s,i) => ({
+    x: pad+(i/(splits.length-1))*(W-pad*2),
+    y: H-pad-(s.split/maxS)*(H-pad*2)
+  }));
+  ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='var(--blue)'; ctx.lineWidth=2; ctx.stroke();
+  pts.forEach((p,i) => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fillStyle='#00c8ff'; ctx.fill();
+  });
+}
+
+// ═══════════════════════════════════════════
+// ALL-TIME STATS
+// ═══════════════════════════════════════════
+function saveSession() {
+  if (!session.shots.length) return;
+  const hits = session.shots.filter(s => s.zone !== 'MISS');
+  const avgScore = hits.length ? (hits.reduce((a,b)=>a+b.score,0)/hits.length) : 0;
+  const hitPct = Math.round(hits.length / session.shots.length * 100);
+  allHistory.push({
+    id: session.id, date: new Date(session.id).toLocaleDateString(),
+    shots: session.shots.length, avgScore: avgScore.toFixed(1), hitPct
+  });
+  localStorage.setItem('ltp_history', JSON.stringify(allHistory.slice(0,200)));
+}
+
+function updateAllTimeStats() {
+  const total = allHistory.reduce((a,s)=>a+s.shots,0) + session.shots.length;
+  const avgs = allHistory.map(s=>parseFloat(s.avgScore)).filter(Boolean);
+  const sHits = session.shots.filter(s=>s.zone!=='MISS').map(s=>s.score);
+  if (sHits.length) avgs.push(sHits.reduce((a,b)=>a+b,0)/sHits.length);
+  const lifetimeAvg = avgs.length ? (avgs.reduce((a,b)=>a+b,0)/avgs.length).toFixed(1) : '--';
+  const bestSession = allHistory.length ? Math.max(...allHistory.map(s=>parseFloat(s.avgScore))).toFixed(1) : '--';
+
+  document.getElementById('all-sessions').textContent = allHistory.length + (session.shots.length?1:0);
+  document.getElementById('all-shots').textContent = total;
+  document.getElementById('all-avg').textContent = lifetimeAvg;
+  document.getElementById('best-session').textContent = bestSession;
+  drawSessionHistoryChart();
+}
+
+function drawSessionHistoryChart() {
+  const canvas = document.getElementById('session-history-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth || 300;
+  const H = canvas.height = 90;
+  ctx.clearRect(0,0,W,H);
+  const sessions = [...allHistory.slice(-9)];
+  if (session.shots.length) {
+    const avg = session.shots.filter(s=>s.zone!=='MISS').map(s=>s.score);
+    sessions.push({avgScore: avg.length?(avg.reduce((a,b)=>a+b,0)/avg.length).toFixed(1):0, date:'Now'});
+  }
+  if (!sessions.length) return;
+  const pad=12, bw=(W-pad*2)/sessions.length-4;
+  sessions.forEach((s,i) => {
+    const v=parseFloat(s.avgScore)||0;
+    const bh=(v/10)*(H-pad*2);
+    const bx=pad+i*((W-pad*2)/sessions.length)+2, by=H-pad-bh;
+    ctx.fillStyle=s.date==='Now'?'rgba(232,255,0,0.85)':'rgba(0,200,255,0.4)';
+    ctx.fillRect(bx,by,bw,bh);
+  });
+}
+
+// ═══════════════════════════════════════════
+// EXPORT PDF
+// ═══════════════════════════════════════════
+function exportPDF() {
+  const shots = session.shots;
+  if (!shots.length) { alert('No shots to export.'); return; }
+
+  const hits = shots.filter(s => s.zone !== 'MISS');
+  const hitPct = Math.round(hits.length/shots.length*100);
+  const avg = hits.length ? (hits.reduce((a,b)=>a+b.score,0)/hits.length).toFixed(1) : '--';
+  const splits = shots.filter(s=>s.split!=null).map(s=>s.split);
+  const avgSplit = splits.length ? (splits.reduce((a,b)=>a+b,0)/splits.length).toFixed(2) : '--';
+
+  const zoneCounts = {};
+  shots.forEach(s => zoneCounts[s.zone] = (zoneCounts[s.zone]||0)+1);
+
+  const shotRows = shots.map((s,i) =>
+    `<tr><td>#${i+1}</td><td style="color:${zoneColor(s.zone)}">${s.zone}</td><td>${s.score}</td><td>${s.split!=null?s.split.toFixed(2)+'s':'—'}</td><td>${s.time}</td></tr>`
+  ).join('');
+
+  const zoneRows = Object.entries(zoneCounts).map(([z,c]) =>
+    `<tr><td>${z}</td><td>${c}</td><td>${Math.round(c/shots.length*100)}%</td></tr>`
+  ).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Arial,sans-serif;padding:32px;color:#111;max-width:700px;margin:0 auto}
+    h1{font-size:28px;letter-spacing:2px;border-bottom:3px solid #222;padding-bottom:8px;margin-bottom:20px}
+    h2{font-size:16px;letter-spacing:1px;margin-top:24px;margin-bottom:8px;border-bottom:1px solid #ddd;padding-bottom:4px}
+    .meta{font-size:13px;color:#555;margin-bottom:20px}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+    .stat-box{border:1px solid #ddd;padding:10px;border-radius:4px;text-align:center}
+    .stat-box .val{font-size:26px;font-weight:bold;color:#222}
+    .stat-box .lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+    th{background:#222;color:#fff;padding:6px 10px;text-align:left;font-size:11px;letter-spacing:1px}
+    td{padding:5px 10px;border-bottom:1px solid #eee}
+    tr:last-child td{border-bottom:none}
+    .footer{margin-top:32px;font-size:11px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:12px}
+  </style></head><body>
+  <h1>🎯 LASER TRAINER PRO — SESSION REPORT</h1>
+  <div class="meta">Date: ${new Date(session.id).toLocaleString()} &nbsp;|&nbsp; Target: ${document.getElementById('target-type').value.toUpperCase()}</div>
+  <h2>Summary</h2>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="val">${shots.length}</div><div class="lbl">Total Shots</div></div>
+    <div class="stat-box"><div class="val">${hitPct}%</div><div class="lbl">Hit Rate</div></div>
+    <div class="stat-box"><div class="val">${avg}</div><div class="lbl">Avg Score</div></div>
+    <div class="stat-box"><div class="val">${hits.length}</div><div class="lbl">Hits</div></div>
+    <div class="stat-box"><div class="val">${avgSplit}s</div><div class="lbl">Avg Split</div></div>
+    <div class="stat-box"><div class="val">${splits.length?Math.min(...splits).toFixed(2)+'s':'--'}</div><div class="lbl">Best Split</div></div>
+  </div>
+  <h2>Zone Breakdown</h2>
+  <table><thead><tr><th>Zone</th><th>Count</th><th>%</th></tr></thead><tbody>${zoneRows}</tbody></table>
+  <h2>Shot Log</h2>
+  <table><thead><tr><th>#</th><th>Zone</th><th>Score</th><th>Split</th><th>Time</th></tr></thead><tbody>${shotRows}</tbody></table>
+  <div class="footer">Generated by Laser Trainer Pro · ${new Date().toLocaleDateString()}</div>
+  </body></html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `laser-trainer-${new Date(session.id).toISOString().slice(0,10)}.html`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════
+// CLEAR SESSION
+// ═══════════════════════════════════════════
+function clearSession() {
+  saveSession();
+  session = { id: Date.now(), shots: [], startTime: new Date() };
+  lastCalloutAt = 0;
+  if (activeDrill) stopDrill();
+  updateAll();
+  document.getElementById('tip-body').textContent = 'Fire at least 5 shots to get coaching analysis.';
+}
+
+// ═══════════════════════════════════════════
+// CAMERA FLASH
+// ═══════════════════════════════════════════
+function flashCamera() {
+  const c = document.getElementById('camera-container');
+  const f = document.createElement('div'); f.className='shot-flash';
+  c.appendChild(f); setTimeout(()=>f.remove(),350);
+}
+
+// ═══════════════════════════════════════════
+// AI COACHING
+// ═══════════════════════════════════════════
+async function fetchCoachTip() {
+  const shots = session.shots;
+  if (shots.length < 5) return;
+
+  const tipBody = document.getElementById('tip-body');
+  tipBody.className = 'tip-body loading';
+  tipBody.textContent = 'Analyzing your performance...';
+
+  const hits = shots.filter(s=>s.zone!=='MISS');
+  const hitPct = Math.round(hits.length/shots.length*100);
+  const avgScore = hits.length ? (hits.reduce((a,b)=>a+b.score,0)/hits.length).toFixed(1) : 0;
+  const splits = shots.filter(s=>s.split!=null).map(s=>s.split);
+  const avgSplit = splits.length ? (splits.reduce((a,b)=>a+b,0)/splits.length).toFixed(2) : null;
+  const zoneCounts = {};
+  shots.forEach(s => zoneCounts[s.zone]=(zoneCounts[s.zone]||0)+1);
+
+  // Group bias
+  const withPos = shots.filter(s=>s.px!=null&&s.zone!=='MISS');
+  let groupInfo = '';
+  if (withPos.length >= 3) {
+    const cx = withPos.reduce((a,s)=>a+s.px,0)/withPos.length;
+    const cy = withPos.reduce((a,s)=>a+s.py,0)/withPos.length;
+    const bx = cx-0.5, by = cy-0.5;
+    const dirs = [];
+    if (by < -0.05) dirs.push('high'); else if (by > 0.05) dirs.push('low');
+    if (bx < -0.05) dirs.push('left'); else if (bx > 0.05) dirs.push('right');
+    groupInfo = dirs.length ? `Group is biased ${dirs.join('-')}. ` : 'Group is well-centered. ';
+  }
+
+  const prompt = `You are a professional pistol shooting coach. Analyze this dry-fire training session:
+
+- Shots: ${shots.length}, Hit rate: ${hitPct}%, Avg score: ${avgScore}/10
+- Zone breakdown: ${JSON.stringify(zoneCounts)}
+- Avg split time: ${avgSplit ? avgSplit+'s' : 'not measured'}
+- ${groupInfo}
+
+Give 2-3 short, specific, actionable coaching tips. Mention the group bias if present. Be direct and encouraging. Max 130 words.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000,
+        messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b=>b.type==='text')?.text || 'Could not generate tips.';
+    tipBody.className = 'tip-body'; tipBody.textContent = text;
+  } catch(e) {
+    tipBody.className = 'tip-body'; tipBody.textContent = 'Coaching unavailable. Check connection.';
+  }
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function switchTab(name) {
+  const names = ['stats','drills','history','coach'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id==='tab-'+name));
+  if (name === 'coach') { updateAllTimeStats(); if (session.shots.length >= 5) fetchCoachTip(); }
+  if (name === 'drills') updateDrillHistory();
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+drawManualTarget([]);
+updateAll();
+updateDrillHistory();
+window.addEventListener('beforeunload', saveSession);
+</script>
+</body>
+</html>
