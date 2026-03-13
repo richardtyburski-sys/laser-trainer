@@ -65,7 +65,6 @@
 
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
-  /* Drill timer overlay */
   .drill-hud {
     position:absolute; top:10px; right:10px;
     background:rgba(0,0,0,0.8); border:1px solid var(--accent);
@@ -76,7 +75,6 @@
   .drill-label { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; }
   .drill-shots-left { font-family:'Teko',sans-serif; font-size:22px; color:var(--text); }
 
-  /* Group analysis overlay */
   .group-hud {
     position:absolute; bottom:10px; left:10px;
     background:rgba(0,0,0,0.8); border:1px solid var(--border);
@@ -86,7 +84,6 @@
   .group-hud-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:4px; }
   .group-hud-val { font-family:'Teko',sans-serif; font-size:18px; }
 
-  /* Session stats bar */
   .session-stats-bar {
     display:flex; gap:14px; align-items:center;
     padding:7px 14px; background:var(--surface2);
@@ -96,7 +93,6 @@
   .session-stat { display:flex; flex-direction:column; }
   .session-stat-val { font-size:17px; font-family:'Teko',sans-serif; color:var(--accent); }
 
-  /* Camera controls */
   .camera-controls {
     padding:10px 14px; background:var(--surface);
     border-top:1px solid var(--border);
@@ -198,18 +194,15 @@
   .tip-body { font-size:13px; line-height:1.6; }
   .tip-body.loading { color:var(--muted); font-style:italic; }
 
-  /* Grouping card */
   .group-card { background:var(--surface2); border:1px solid var(--border); padding:12px; }
   .group-card-title { font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px; color:var(--blue); text-transform:uppercase; margin-bottom:8px; }
   .group-detail { font-size:12px; color:var(--muted); line-height:1.8; font-family:'Share Tech Mono',monospace; }
   .group-detail span { color:var(--text); }
 
-  /* Target panel */
   .target-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:10px; align-items:center; }
   .panel-label { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Share Tech Mono',monospace; align-self:flex-start; }
   #manual-target { display:block; cursor:crosshair; }
 
-  /* Drill panel */
   .drill-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:10px; }
   .drill-panel-title { font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px; color:var(--accent); text-transform:uppercase; }
   .drill-options { display:flex; flex-direction:column; gap:6px; }
@@ -223,23 +216,19 @@
   .drill-name { font-weight:600; }
   .drill-desc { font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; }
 
-  /* Metronome */
   .metro-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; }
   .metro-bpm-display { font-family:'Teko',sans-serif; font-size:40px; color:var(--accent); text-align:center; line-height:1; }
   .metro-controls { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
   .metro-dot { width:14px; height:14px; border-radius:50%; background:var(--border); transition:background 0.05s; margin:0 auto; }
   .metro-dot.beat { background:var(--accent); }
 
-  /* Section header */
   .section-header { font-family:'Teko',sans-serif; font-size:18px; letter-spacing:2px; color:var(--text); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:5px; }
 
   .empty-state { color:var(--muted); font-size:13px; text-align:center; padding:16px; font-style:italic; }
 
-  /* Flash */
   .shot-flash { position:absolute; inset:0; background:rgba(255,48,48,0.18); pointer-events:none; animation:flashout 0.35s ease forwards; z-index:10; }
   @keyframes flashout { 0%{opacity:1} 100%{opacity:0} }
 
-  /* ── CALLOUT OVERLAY ── */
   #callout-overlay {
     position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
     pointer-events:none; z-index:10000; opacity:0; transition:opacity 0.25s;
@@ -254,7 +243,6 @@
   .callout-halo .callout-quote { color:#e8ff00; }
   .callout-epic .callout-quote { color:#00ff88; }
 
-  /* ── DRILL COMPLETE OVERLAY ── */
   #drill-complete {
     position:fixed; inset:0; background:rgba(0,0,0,0.85);
     display:none; align-items:center; justify-content:center; z-index:9000;
@@ -288,21 +276,18 @@
         <div class="status-dot" id="status-dot"></div>
         <span id="status-text">OFFLINE</span>
       </div>
-      <!-- Drill HUD -->
       <div class="drill-hud" id="drill-hud">
         <div class="drill-label">TIME</div>
         <div class="drill-timer" id="drill-timer">00.0</div>
         <div class="drill-label">SHOTS LEFT</div>
         <div class="drill-shots-left" id="drill-shots-disp">—</div>
       </div>
-      <!-- Group analysis mini-HUD -->
       <div class="group-hud" id="group-hud">
         <div class="group-hud-title">GROUP ANALYSIS</div>
         <div class="group-hud-val" id="group-hud-val" style="color:var(--blue)">—</div>
       </div>
     </div>
 
-    <!-- Session bar -->
     <div class="session-stats-bar">
       <div class="session-stat"><span class="session-stat-val" id="bar-shots">0</span><span>SHOTS</span></div>
       <div class="session-stat"><span class="session-stat-val" id="bar-hits">0</span><span>HITS</span></div>
@@ -312,7 +297,6 @@
       <div class="session-stat"><span class="session-stat-val" id="bar-streak">0</span><span>STREAK</span></div>
     </div>
 
-    <!-- Controls row 1 -->
     <div class="camera-controls">
       <div class="ctrl-row">
         <button class="btn primary" id="btn-camera" onclick="toggleCamera()">START CAMERA</button>
@@ -324,7 +308,6 @@
       </div>
       <div class="ctrl-row">
         <button class="btn" onclick="testCallout()" style="font-size:12px">🔊 CALLOUT</button>
-        <!-- Laser color -->
         <div class="ctrl-group">
           LASER:
           <select id="laser-color" onchange="updateLaserColor()">
@@ -332,7 +315,6 @@
             <option value="green">GREEN</option>
           </select>
         </div>
-        <!-- Target type -->
         <div class="ctrl-group">
           TARGET:
           <select id="target-type" onchange="redrawManual()">
@@ -342,7 +324,6 @@
             <option value="nra">NRA B-8</option>
           </select>
         </div>
-        <!-- Sensitivity -->
         <div class="ctrl-group" style="margin-left:auto">
           SENS:
           <input type="range" id="sensitivity" min="10" max="100" value="40">
@@ -359,6 +340,7 @@
       <div class="tab" onclick="switchTab('drills')">DRILLS</div>
       <div class="tab" onclick="switchTab('history')">LOG</div>
       <div class="tab" onclick="switchTab('coach')">COACH</div>
+      <div class="tab" onclick="switchTab('challenge')">CHALLENGE</div>
     </div>
 
     <!-- STATS TAB -->
@@ -376,7 +358,6 @@
       <div class="section-header">Zone Breakdown</div>
       <div class="zone-breakdown" id="zone-breakdown"></div>
 
-      <!-- Group Analysis card -->
       <div class="group-card" id="group-card">
         <div class="group-card-title">📍 Group Analysis</div>
         <div class="group-detail" id="group-detail">Fire 3+ shots to see grouping data.</div>
@@ -473,6 +454,45 @@
         <canvas id="session-history-canvas" width="300" height="90"></canvas>
       </div>
     </div>
+
+    <!-- CHALLENGE TAB -->
+    <div class="tab-content" id="tab-challenge">
+      <div class="section-header">Challenge Mode</div>
+      <div id="challenge-setup" style="display:flex;flex-direction:column;gap:10px">
+        <div class="tip-card" style="border-left-color:var(--blue)">
+          <div class="tip-header" style="color:var(--blue)">HOW IT WORKS</div>
+          <div class="tip-body">Shoot 10 rounds and submit your score to the shared leaderboard. Select your distance and enter your name to compete.</div>
+        </div>
+        <div class="drill-panel">
+          <div class="panel-label">Your Name</div>
+          <input type="text" id="challenge-name" placeholder="Enter your name..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:Rajdhani,sans-serif;font-size:14px;margin-top:4px">
+          <div class="panel-label" style="margin-top:10px">Distance</div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn active" id="dist-5" onclick="selectDist('5')">5 YDS</button>
+            <button class="btn" id="dist-10" onclick="selectDist('10')">10 YDS</button>
+            <button class="btn" id="dist-15" onclick="selectDist('15')">15 YDS</button>
+          </div>
+          <button class="btn primary" onclick="startChallenge()" style="margin-top:10px">START CHALLENGE</button>
+        </div>
+      </div>
+      <div id="challenge-active" style="display:none;flex-direction:column;gap:10px">
+        <div style="background:var(--surface2);border:1px solid var(--accent);padding:14px;text-align:center">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">CHALLENGE IN PROGRESS</div>
+          <div style="font-family:'Teko',sans-serif;font-size:48px;color:var(--accent);line-height:1" id="challenge-shots-left">10</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">SHOTS REMAINING</div>
+          <div style="font-family:'Teko',sans-serif;font-size:28px;color:var(--green);margin-top:8px" id="challenge-score-live">SCORE: 0</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);font-family:monospace;text-align:center">Use Manual Target or camera to fire shots</div>
+        <button class="btn danger" onclick="abortChallenge()">ABORT</button>
+      </div>
+      <div class="section-header" style="margin-top:8px">Leaderboard</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <button class="btn active" id="lb-5" onclick="switchLeaderboard('5')">5 YDS</button>
+        <button class="btn" id="lb-10" onclick="switchLeaderboard('10')">10 YDS</button>
+        <button class="btn" id="lb-15" onclick="switchLeaderboard('15')">15 YDS</button>
+      </div>
+      <div id="leaderboard-list"><div class="empty-state">No entries yet. Be the first!</div></div>
+    </div>
   </div>
 </div>
 
@@ -501,17 +521,15 @@ let cameraActive = false, detectionActive = false;
 let stream = null, animFrame = null;
 let shotCooldown = false, shotCooldownMs = 1200;
 
-// Smart detection state
 let laserCandidate = null;
 let candidateFrames = 0;
-const FRAMES_REQUIRED = 2;    // 2 frames ~67ms — catches short laser pulses
+const FRAMES_REQUIRED = 2;
 const CLUSTER_RADIUS = 0.05;
 const MIN_CLUSTER_PX = 3;
 
-// Background subtraction
-let bgImageData = null;        // baseline frame captured at calibration
+let bgImageData = null;
 let bgCaptured = false;
-const BG_DIFF_THRESHOLD = 35;  // pixel must be this much brighter than baseline
+const BG_DIFF_THRESHOLD = 35;
 
 let laserMode = 'red';
 
@@ -519,7 +537,6 @@ let session = { id: Date.now(), shots: [], startTime: new Date() };
 let allHistory = JSON.parse(localStorage.getItem('ltp_history') || '[]');
 let drillHistory = JSON.parse(localStorage.getItem('ltp_drills') || '[]');
 
-// Drill state
 let activeDrill = null;
 let drillStartTime = null, drillTimerInterval = null;
 let drillShotsRemaining = 0, drillShotsThisRun = [];
@@ -532,10 +549,7 @@ const DRILLS = {
   free:      { name:'Free Practice', shots:null, timeLimit:null }
 };
 
-// Metronome
 let metroBPM = 80, metroActive = false, metroInterval = null;
-
-// Callout
 let lastCalloutAt = 0, calloutTimeout = null;
 
 // ═══════════════════════════════════════════
@@ -620,14 +634,11 @@ function calibrateBackground() {
     alert('Start camera first, then calibrate.');
     return;
   }
-  // Draw current frame and grab pixel data as baseline
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   bgImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   bgCaptured = true;
   laserCandidate = null;
   candidateFrames = 0;
-
-  // Flash the button green briefly
   const btn = document.getElementById('btn-calibrate');
   btn.textContent = '✓ CALIBRATED';
   btn.className = 'btn active';
@@ -657,23 +668,19 @@ function startOverlayLoop() {
         const hit = detectLaser(ctx, canvas.width, canvas.height);
 
         if (hit) {
-          // Check if this is the same spot as last frame (within cluster radius)
           const sameSpot = laserCandidate &&
             Math.abs(hit.x - laserCandidate.x) < CLUSTER_RADIUS &&
             Math.abs(hit.y - laserCandidate.y) < CLUSTER_RADIUS;
 
           if (sameSpot) {
             candidateFrames++;
-            // Average position for stability
             laserCandidate.x = (laserCandidate.x + hit.x) / 2;
             laserCandidate.y = (laserCandidate.y + hit.y) / 2;
           } else {
-            // New position — reset candidate
             laserCandidate = { x: hit.x, y: hit.y };
             candidateFrames = 1;
           }
 
-          // Draw candidate indicator (yellow dot = tracking, not yet fired)
           const px = laserCandidate.x * canvas.width;
           const py = laserCandidate.y * canvas.height;
           const progress = candidateFrames / FRAMES_REQUIRED;
@@ -687,7 +694,6 @@ function startOverlayLoop() {
           ctx.fillStyle = '#ff3030';
           ctx.fill();
 
-          // Fire shot only after enough consistent frames
           if (candidateFrames >= FRAMES_REQUIRED) {
             triggerShotFromCamera(laserCandidate, canvas.width, canvas.height);
             laserCandidate = null;
@@ -695,12 +701,10 @@ function startOverlayLoop() {
           }
 
         } else {
-          // No laser detected this frame — decay candidate
           candidateFrames = Math.max(0, candidateFrames - 1);
           if (candidateFrames === 0) laserCandidate = null;
         }
       } else if (!detectionActive) {
-        // Reset when detection is off
         laserCandidate = null;
         candidateFrames = 0;
       }
@@ -713,7 +717,6 @@ function startOverlayLoop() {
 }
 
 function drawCameraOverlay(ctx, w, h) {
-  // Corner markers
   ctx.strokeStyle = 'rgba(232,255,0,0.6)'; ctx.lineWidth = 2;
   [[0,0],[w,0],[0,h],[w,h]].forEach(([x,y]) => {
     const sx = x === 0 ? 10 : w-10, sy = y === 0 ? 10 : h-10;
@@ -725,7 +728,7 @@ function drawCameraOverlay(ctx, w, h) {
 }
 
 // ═══════════════════════════════════════════
-// LASER DETECTION — bg subtraction + 632-650nm tuning
+// LASER DETECTION
 // ═══════════════════════════════════════════
 function detectLaser(ctx, w, h) {
   const imageData = ctx.getImageData(0, 0, w, h);
@@ -740,26 +743,20 @@ function detectLaser(ctx, w, h) {
       const i = (y * w + x) * 4;
       const r = data[i], g = data[i+1], b = data[i+2];
 
-      // Background subtraction — skip pixels that look like baseline
       if (bgData) {
         const br = bgData[i], bg2 = bgData[i+1], bb = bgData[i+2];
         const rDiff = r - br, gDiff = g - bg2, bDiff = b - bb;
-        // Must be significantly brighter than baseline in the right channel
         if (laserMode === 'red' && rDiff < BG_DIFF_THRESHOLD) continue;
         if (laserMode === 'green' && gDiff < BG_DIFF_THRESHOLD) continue;
       }
 
       let score = 0;
       if (laserMode === 'red') {
-        // 632-650nm: very high R, G should be near zero, B near zero
-        // Typical camera response: R≈240-255, G<60, B<40 for this wavelength
         if (r > 200 && g < 80 && b < 70) {
-          // Ratio test: R must dominate strongly
           const ratio = r / (Math.max(g, b, 1));
           if (ratio > 3.5) score = r - Math.max(g, b);
         }
       } else {
-        // 520nm green: high G, very low R and B
         if (g > 200 && r < 80 && b < 70) {
           const ratio = g / (Math.max(r, b, 1));
           if (ratio > 3.5) score = g - Math.max(r, b);
@@ -774,7 +771,6 @@ function detectLaser(ctx, w, h) {
 
   if (bx < 0) return null;
 
-  // Cluster check — count qualifying pixels near brightest point
   const searchR = 10;
   let clusterCount = 0;
   for (let dy = -searchR; dy <= searchR; dy += 2) {
@@ -871,7 +867,6 @@ function drawManualTarget(shots) {
 
   manualCtx.fillStyle = '#1a1d24'; manualCtx.fillRect(0, 0, W, H);
 
-  // Rings (outer to inner)
   cfg.rings.forEach(ring => {
     manualCtx.beginPath();
     manualCtx.arc(cx, cy, maxR * ring.r, 0, Math.PI * 2);
@@ -880,14 +875,12 @@ function drawManualTarget(shots) {
     manualCtx.lineWidth = 1; manualCtx.stroke();
   });
 
-  // Crosshair
   manualCtx.strokeStyle = 'rgba(255,255,255,0.12)';
   manualCtx.lineWidth = 1; manualCtx.setLineDash([3,6]);
   manualCtx.beginPath(); manualCtx.moveTo(cx,0); manualCtx.lineTo(cx,H); manualCtx.stroke();
   manualCtx.beginPath(); manualCtx.moveTo(0,cy); manualCtx.lineTo(W,cy); manualCtx.stroke();
   manualCtx.setLineDash([]);
 
-  // Shot dots
   shots.slice(-30).forEach((shot, i) => {
     if (shot.px == null) return;
     const sx = shot.px * W, sy = shot.py * H;
@@ -899,7 +892,6 @@ function drawManualTarget(shots) {
     manualCtx.lineWidth = 1; manualCtx.stroke();
   });
 
-  // Draw centroid if enough shots
   const withPos = shots.filter(s => s.px != null && s.zone !== 'MISS');
   if (withPos.length >= 3) {
     const cx2 = withPos.reduce((a,s) => a + s.px, 0) / withPos.length * W;
@@ -909,7 +901,6 @@ function drawManualTarget(shots) {
     manualCtx.strokeStyle = '#00ff88'; manualCtx.lineWidth = 2;
     manualCtx.setLineDash([3,3]); manualCtx.stroke();
     manualCtx.setLineDash([]);
-    // crosshair through centroid
     manualCtx.strokeStyle = 'rgba(0,255,136,0.5)'; manualCtx.lineWidth = 1;
     manualCtx.beginPath(); manualCtx.moveTo(cx2-8,cy2); manualCtx.lineTo(cx2+8,cy2); manualCtx.stroke();
     manualCtx.beginPath(); manualCtx.moveTo(cx2,cy2-8); manualCtx.lineTo(cx2,cy2+8); manualCtx.stroke();
@@ -961,7 +952,8 @@ function recordShot(zone, px, py, source) {
     time: new Date().toLocaleTimeString() };
   session.shots.push(shot);
 
-  // Drill integration
+  if (challengeActive) recordChallengeShot(zone);
+
   if (activeDrill) {
     drillShotsThisRun.push(shot);
     drillShotsRemaining--;
@@ -1034,7 +1026,6 @@ function speak(text) {
 }
 
 function testCallout() {
-  // Unlock audio on iOS (requires user gesture) and test both visual + speech
   showCallout('"Jesus Christ... it\'s Jason Bourne."', '— The Bourne Ultimatum (2007)', '🎯 AUDIO TEST', 'bourne');
   speak("Jesus Christ, it's Jason Bourne.");
 }
@@ -1060,11 +1051,9 @@ function startDrill() {
   document.getElementById('drill-hud').classList.add('active');
   document.getElementById('drill-shots-disp').textContent = drillShotsRemaining === 999 ? '∞' : drillShotsRemaining;
 
-  // Start timer
   drillTimerInterval = setInterval(() => {
     const elapsed = (Date.now() - drillStartTime) / 1000;
     document.getElementById('drill-timer').textContent = elapsed.toFixed(1);
-    // Time limit check
     if (activeDrill.timeLimit && (Date.now() - drillStartTime) >= activeDrill.timeLimit) {
       completeDrill();
     }
@@ -1084,7 +1073,6 @@ function completeDrill() {
   const splits = shots.filter(s => s.split != null).map(s => s.split);
   const avgSplit = splits.length ? (splits.reduce((a,b)=>a+b,0)/splits.length).toFixed(2) : '--';
 
-  // Show result overlay
   document.getElementById('dc-title').textContent = activeDrill.name + ' COMPLETE';
   document.getElementById('dc-stats').innerHTML = `
     <div>Time: <span>${elapsed.toFixed(2)}s</span></div>
@@ -1095,7 +1083,6 @@ function completeDrill() {
   `;
   document.getElementById('drill-complete').classList.add('show');
 
-  // Save to drill history
   drillHistory.unshift({ name: activeDrill.name, date: new Date().toLocaleDateString(), time: elapsed.toFixed(2), score: totalScore, hitPct });
   localStorage.setItem('ltp_drills', JSON.stringify(drillHistory.slice(0, 50)));
   updateDrillHistory();
@@ -1145,7 +1132,6 @@ function runMetro() {
   metroInterval = setInterval(() => {
     const dot = document.getElementById('metro-dot');
     dot.classList.add('beat');
-    // Click sound via AudioContext
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
@@ -1182,12 +1168,9 @@ function analyzeGroup() {
   const cx = xs.reduce((a,b)=>a+b,0)/xs.length;
   const cy = ys.reduce((a,b)=>a+b,0)/ys.length;
 
-  // Spread (average distance from centroid), in normalized coords → convert to "inches" estimate
   const dists = shots.map(s => Math.sqrt((s.px-cx)**2 + (s.py-cy)**2));
   const avgSpread = dists.reduce((a,b)=>a+b,0)/dists.length;
-  const maxSpread = Math.max(...dists);
 
-  // Bias direction (centroid offset from center)
   const bx = cx - 0.5, by = cy - 0.5;
   let bias = 'Centered';
   const bMag = Math.sqrt(bx*bx + by*by);
@@ -1198,7 +1181,6 @@ function analyzeGroup() {
     bias = dirs.join('-') || 'Centered';
   }
 
-  // Coachable interpretation
   const biasAdvice = {
     'HIGH': 'Anticipating recoil or heeling — try a lighter grip.',
     'LOW': 'Pushing down on trigger — focus on straight-back trigger press.',
@@ -1524,7 +1506,6 @@ async function fetchCoachTip() {
   const zoneCounts = {};
   shots.forEach(s => zoneCounts[s.zone]=(zoneCounts[s.zone]||0)+1);
 
-  // Group bias
   const withPos = shots.filter(s=>s.px!=null&&s.zone!=='MISS');
   let groupInfo = '';
   if (withPos.length >= 3) {
@@ -1561,14 +1542,115 @@ Give 2-3 short, specific, actionable coaching tips. Mention the group bias if pr
 }
 
 // ═══════════════════════════════════════════
+// CHALLENGE MODE
+// ═══════════════════════════════════════════
+let challengeActive = false;
+let challengeDist = '5';
+let challengeShots = [];
+let challengeLBDist = '5';
+
+function selectDist(d) {
+  challengeDist = d;
+  ['5','10','15'].forEach(v => {
+    document.getElementById('dist-'+v).className = v === d ? 'btn active' : 'btn';
+  });
+}
+
+function switchLeaderboard(d) {
+  challengeLBDist = d;
+  ['5','10','15'].forEach(v => {
+    document.getElementById('lb-'+v).className = v === d ? 'btn active' : 'btn';
+  });
+  loadLeaderboard();
+}
+
+function startChallenge() {
+  const name = document.getElementById('challenge-name').value.trim();
+  if (!name) { alert('Enter your name first.'); return; }
+  challengeActive = true;
+  challengeShots = [];
+  document.getElementById('challenge-setup').style.display = 'none';
+  document.getElementById('challenge-active').style.display = 'flex';
+  document.getElementById('challenge-shots-left').textContent = '10';
+  document.getElementById('challenge-score-live').textContent = 'SCORE: 0';
+}
+
+function abortChallenge() {
+  challengeActive = false;
+  challengeShots = [];
+  document.getElementById('challenge-setup').style.display = 'flex';
+  document.getElementById('challenge-active').style.display = 'none';
+}
+
+function recordChallengeShot(zone) {
+  if (!challengeActive) return;
+  challengeShots.push({ zone, score: zoneScore(zone) });
+  const remaining = 10 - challengeShots.length;
+  const total = challengeShots.reduce((a,b) => a + b.score, 0);
+  document.getElementById('challenge-shots-left').textContent = remaining;
+  document.getElementById('challenge-score-live').textContent = 'SCORE: ' + total;
+  if (challengeShots.length >= 10) submitChallenge();
+}
+
+async function submitChallenge() {
+  challengeActive = false;
+  const name = document.getElementById('challenge-name').value.trim();
+  const total = challengeShots.reduce((a,b) => a + b.score, 0);
+  const entry = { name, score: total, distance: challengeDist, date: new Date().toLocaleDateString() };
+
+  let entries = [];
+  try {
+    const result = await window.storage.get('challenge-leaderboard', true);
+    entries = JSON.parse(result.value);
+  } catch(e) { entries = []; }
+
+  entries.push(entry);
+  entries.sort((a,b) => b.score - a.score);
+
+  try {
+    await window.storage.set('challenge-leaderboard', JSON.stringify(entries.slice(0,200)), true);
+  } catch(e) {}
+
+  document.getElementById('challenge-active').style.display = 'none';
+  document.getElementById('challenge-setup').style.display = 'flex';
+  alert(`Challenge complete!\n${name}: ${total}/100\nDistance: ${challengeDist} yards`);
+  switchLeaderboard(challengeDist);
+}
+
+async function loadLeaderboard() {
+  const el = document.getElementById('leaderboard-list');
+  el.innerHTML = '<div class="empty-state">Loading...</div>';
+  let entries = [];
+  try {
+    const result = await window.storage.get('challenge-leaderboard', true);
+    entries = JSON.parse(result.value);
+  } catch(e) { entries = []; }
+
+  const filtered = entries.filter(e => e.distance === challengeLBDist);
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state">No entries yet for this distance.</div>';
+    return;
+  }
+  el.innerHTML = filtered.slice(0,20).map((e,i) => `
+    <div class="shot-entry ${i===0?'z10':i<3?'z9':'z8'}" style="align-items:center">
+      <span style="font-family:'Teko',sans-serif;font-size:20px;min-width:28px;color:${i===0?'var(--accent)':i<3?'#aaff00':'var(--blue)'}">${i+1}</span>
+      <span style="flex:1;font-size:13px;color:var(--text)">${e.name}</span>
+      <span style="font-family:'Teko',sans-serif;font-size:22px;color:${i===0?'var(--accent)':'var(--text)'}">${e.score}<span style="font-size:12px;color:var(--muted)">/100</span></span>
+      <span style="font-size:10px;color:var(--muted);margin-left:8px">${e.date}</span>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════════
 function switchTab(name) {
-  const names = ['stats','drills','history','coach'];
+  const names = ['stats','drills','history','coach','challenge'];
   document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i]===name));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id==='tab-'+name));
   if (name === 'coach') { updateAllTimeStats(); if (session.shots.length >= 5) fetchCoachTip(); }
   if (name === 'drills') updateDrillHistory();
+  if (name === 'challenge') loadLeaderboard();
 }
 
 // ═══════════════════════════════════════════
