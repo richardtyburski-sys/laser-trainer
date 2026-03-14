@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LASER TRAINER PRO</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Teko:wght@300;400;500;600;700&display=swap');
-
   :root {
     --bg: #0a0c0f; --surface: #111318; --surface2: #1a1d24;
     --border: #2a2d35; --accent: #e8ff00; --accent2: #ff4d00;
@@ -18,7 +16,7 @@
 
   body {
     background: var(--bg); color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
+    font-family:'Arial','Helvetica',sans-serif;
     min-height: 100vh; overflow-x: hidden;
   }
 
@@ -34,10 +32,10 @@
     border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;
   }
 
-  .logo { font-family:'Teko',sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; color:var(--accent); text-shadow:0 0 20px rgba(232,255,0,0.4); }
+  .logo { font-family:'Impact','Arial Narrow',sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; color:var(--accent); text-shadow:0 0 20px rgba(232,255,0,0.4); }
   .logo span { color:var(--accent2); }
 
-  .session-info { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); text-align:right; line-height:1.6; }
+  .session-info { font-family:'Courier New',monospace; font-size:11px; color:var(--muted); text-align:right; line-height:1.6; }
 
   .main { display:grid; grid-template-columns:1fr 360px; height:calc(100vh - 53px); }
 
@@ -56,7 +54,7 @@
     position:absolute; top:10px; left:10px;
     display:flex; align-items:center; gap:6px;
     background:rgba(0,0,0,0.75); border:1px solid var(--border);
-    padding:4px 10px; font-family:'Share Tech Mono',monospace; font-size:11px;
+    padding:4px 10px; font-family:'Courier New',monospace; font-size:11px;
   }
 
   .status-dot { width:7px; height:7px; border-radius:50%; background:var(--muted); }
@@ -71,9 +69,9 @@
     padding:8px 14px; text-align:center; display:none;
   }
   .drill-hud.active { display:block; }
-  .drill-timer { font-family:'Teko',sans-serif; font-size:48px; line-height:1; color:var(--accent); }
-  .drill-label { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; }
-  .drill-shots-left { font-family:'Teko',sans-serif; font-size:22px; color:var(--text); }
+  .drill-timer { font-family:'Impact','Arial Narrow',sans-serif; font-size:48px; line-height:1; color:var(--accent); }
+  .drill-label { font-family:'Courier New',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; }
+  .drill-shots-left { font-family:'Impact','Arial Narrow',sans-serif; font-size:22px; color:var(--text); }
 
   .group-hud {
     position:absolute; bottom:10px; left:10px;
@@ -81,17 +79,17 @@
     padding:8px 12px; display:none;
   }
   .group-hud.active { display:block; }
-  .group-hud-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:4px; }
-  .group-hud-val { font-family:'Teko',sans-serif; font-size:18px; }
+  .group-hud-title { font-family:'Courier New',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:4px; }
+  .group-hud-val { font-family:'Impact','Arial Narrow',sans-serif; font-size:18px; }
 
   .session-stats-bar {
     display:flex; gap:14px; align-items:center;
     padding:7px 14px; background:var(--surface2);
     border-top:1px solid var(--border); border-bottom:1px solid var(--border);
-    font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); flex-wrap:wrap;
+    font-family:'Courier New',monospace; font-size:11px; color:var(--muted); flex-wrap:wrap;
   }
   .session-stat { display:flex; flex-direction:column; }
-  .session-stat-val { font-size:17px; font-family:'Teko',sans-serif; color:var(--accent); }
+  .session-stat-val { font-size:17px; font-family:'Impact','Arial Narrow',sans-serif; color:var(--accent); }
 
   .camera-controls {
     padding:10px 14px; background:var(--surface);
@@ -100,7 +98,7 @@
   }
 
   .btn {
-    font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; letter-spacing:1px;
+    font-family:'Arial','Helvetica',sans-serif; font-size:13px; font-weight:600; letter-spacing:1px;
     padding:7px 14px; border:1px solid var(--border); background:var(--surface2);
     color:var(--text); cursor:pointer; transition:all 0.15s; text-transform:uppercase;
     clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);
@@ -116,7 +114,7 @@
 
   .ctrl-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; width:100%; }
 
-  .ctrl-group { display:flex; align-items:center; gap:6px; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); }
+  .ctrl-group { display:flex; align-items:center; gap:6px; font-family:'Courier New',monospace; font-size:11px; color:var(--muted); }
 
   input[type=range] {
     -webkit-appearance:none; width:80px; height:3px;
@@ -129,7 +127,7 @@
   select {
     background:var(--surface2); border:1px solid var(--border);
     color:var(--text); padding:5px 8px;
-    font-family:'Share Tech Mono',monospace; font-size:11px;
+    font-family:'Courier New',monospace; font-size:11px;
     cursor:pointer;
   }
   select:focus { outline:none; border-color:var(--accent); }
@@ -140,7 +138,7 @@
   .tabs { display:flex; border-bottom:1px solid var(--border); }
   .tab {
     flex:1; padding:10px 4px;
-    font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px;
+    font-family:'Impact','Arial Narrow',sans-serif; font-size:16px; letter-spacing:1px;
     text-align:center; cursor:pointer; color:var(--muted);
     border-bottom:2px solid transparent; transition:all 0.2s; text-transform:uppercase;
   }
@@ -155,8 +153,8 @@
   .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
   .stat-card { background:var(--surface2); border:1px solid var(--border); padding:10px; position:relative; overflow:hidden; }
   .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent); }
-  .stat-label { font-size:10px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; font-family:'Share Tech Mono',monospace; }
-  .stat-value { font-family:'Teko',sans-serif; font-size:32px; line-height:1; color:var(--accent); }
+  .stat-label { font-size:10px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; font-family:'Courier New',monospace; }
+  .stat-value { font-family:'Impact','Arial Narrow',sans-serif; font-size:32px; line-height:1; color:var(--accent); }
   .stat-value.green { color:var(--green); }
   .stat-value.blue { color:var(--blue); }
   .stat-value.red { color:var(--red); }
@@ -175,7 +173,7 @@
   .shot-entry {
     display:flex; align-items:center; gap:7px; padding:6px 9px;
     background:var(--surface2); border-left:3px solid var(--border);
-    font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted);
+    font-family:'Courier New',monospace; font-size:11px; color:var(--muted);
     animation:fadeIn 0.25s ease;
   }
   @keyframes fadeIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:translateX(0)} }
@@ -184,27 +182,27 @@
   .shot-entry.z8  { border-left-color:var(--blue); }
   .shot-entry.z7  { border-left-color:#7c7cff; }
   .shot-entry.zmiss { border-left-color:var(--red); }
-  .shot-zone-badge { font-family:'Teko',sans-serif; font-size:17px; min-width:26px; text-align:center; }
+  .shot-zone-badge { font-family:'Impact','Arial Narrow',sans-serif; font-size:17px; min-width:26px; text-align:center; }
 
   .chart-wrap { background:var(--surface2); border:1px solid var(--border); padding:10px; }
-  .chart-title { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Share Tech Mono',monospace; margin-bottom:8px; }
+  .chart-title { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Courier New',monospace; margin-bottom:8px; }
 
   .tip-card { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--accent2); padding:12px; }
-  .tip-header { display:flex; align-items:center; gap:7px; margin-bottom:7px; font-family:'Teko',sans-serif; font-size:15px; letter-spacing:1px; color:var(--accent2); text-transform:uppercase; }
+  .tip-header { display:flex; align-items:center; gap:7px; margin-bottom:7px; font-family:'Impact','Arial Narrow',sans-serif; font-size:15px; letter-spacing:1px; color:var(--accent2); text-transform:uppercase; }
   .tip-body { font-size:13px; line-height:1.6; }
   .tip-body.loading { color:var(--muted); font-style:italic; }
 
   .group-card { background:var(--surface2); border:1px solid var(--border); padding:12px; }
-  .group-card-title { font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px; color:var(--blue); text-transform:uppercase; margin-bottom:8px; }
-  .group-detail { font-size:12px; color:var(--muted); line-height:1.8; font-family:'Share Tech Mono',monospace; }
+  .group-card-title { font-family:'Impact','Arial Narrow',sans-serif; font-size:16px; letter-spacing:1px; color:var(--blue); text-transform:uppercase; margin-bottom:8px; }
+  .group-detail { font-size:12px; color:var(--muted); line-height:1.8; font-family:'Courier New',monospace; }
   .group-detail span { color:var(--text); }
 
   .target-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:10px; align-items:center; }
-  .panel-label { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Share Tech Mono',monospace; align-self:flex-start; }
+  .panel-label { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Courier New',monospace; align-self:flex-start; }
   #manual-target { display:block; cursor:crosshair; }
 
   .drill-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:10px; }
-  .drill-panel-title { font-family:'Teko',sans-serif; font-size:16px; letter-spacing:1px; color:var(--accent); text-transform:uppercase; }
+  .drill-panel-title { font-family:'Impact','Arial Narrow',sans-serif; font-size:16px; letter-spacing:1px; color:var(--accent); text-transform:uppercase; }
   .drill-options { display:flex; flex-direction:column; gap:6px; }
   .drill-option {
     display:flex; align-items:center; justify-content:space-between;
@@ -214,15 +212,15 @@
   .drill-option:hover { border-color:var(--accent); }
   .drill-option.selected { border-color:var(--accent); background:rgba(232,255,0,0.05); }
   .drill-name { font-weight:600; }
-  .drill-desc { font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; }
+  .drill-desc { font-size:11px; color:var(--muted); font-family:'Courier New',monospace; }
 
   .metro-panel { background:var(--surface2); border:1px solid var(--border); padding:12px; }
-  .metro-bpm-display { font-family:'Teko',sans-serif; font-size:40px; color:var(--accent); text-align:center; line-height:1; }
+  .metro-bpm-display { font-family:'Impact','Arial Narrow',sans-serif; font-size:40px; color:var(--accent); text-align:center; line-height:1; }
   .metro-controls { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
   .metro-dot { width:14px; height:14px; border-radius:50%; background:var(--border); transition:background 0.05s; margin:0 auto; }
   .metro-dot.beat { background:var(--accent); }
 
-  .section-header { font-family:'Teko',sans-serif; font-size:18px; letter-spacing:2px; color:var(--text); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:5px; }
+  .section-header { font-family:'Impact','Arial Narrow',sans-serif; font-size:18px; letter-spacing:2px; color:var(--text); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:5px; }
 
   .empty-state { color:var(--muted); font-size:13px; text-align:center; padding:16px; font-style:italic; }
 
@@ -236,9 +234,9 @@
   #callout-overlay.show { opacity:1; }
   .callout-box { text-align:center; animation:calloutPop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
   @keyframes calloutPop { 0%{transform:scale(0.5) translateY(30px);opacity:0} 100%{transform:scale(1) translateY(0);opacity:1} }
-  .callout-streak { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-bottom:6px; }
-  .callout-quote { font-family:'Teko',sans-serif; font-size:clamp(26px,5vw,58px); font-weight:700; letter-spacing:2px; line-height:1.1; text-shadow:0 0 40px currentColor,0 4px 20px rgba(0,0,0,0.8); padding:18px 36px; border-top:3px solid currentColor; border-bottom:3px solid currentColor; background:rgba(0,0,0,0.88); backdrop-filter:blur(4px); max-width:80vw; }
-  .callout-source { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:3px; color:rgba(255,255,255,0.45); margin-top:7px; text-transform:uppercase; }
+  .callout-streak { font-family:'Courier New',monospace; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-bottom:6px; }
+  .callout-quote { font-family:'Impact','Arial Narrow',sans-serif; font-size:clamp(26px,5vw,58px); font-weight:700; letter-spacing:2px; line-height:1.1; text-shadow:0 0 40px currentColor,0 4px 20px rgba(0,0,0,0.8); padding:18px 36px; border-top:3px solid currentColor; border-bottom:3px solid currentColor; background:rgba(0,0,0,0.88); backdrop-filter:blur(4px); max-width:80vw; }
+  .callout-source { font-family:'Courier New',monospace; font-size:12px; letter-spacing:3px; color:rgba(255,255,255,0.45); margin-top:7px; text-transform:uppercase; }
   .callout-bourne .callout-quote { color:#00c8ff; }
   .callout-halo .callout-quote { color:#e8ff00; }
   .callout-epic .callout-quote { color:#00ff88; }
@@ -249,8 +247,8 @@
   }
   #drill-complete.show { display:flex; }
   .drill-result-box { background:var(--surface); border:1px solid var(--accent); padding:32px 48px; text-align:center; max-width:400px; }
-  .drill-result-title { font-family:'Teko',sans-serif; font-size:36px; letter-spacing:3px; color:var(--accent); }
-  .drill-result-stats { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--muted); line-height:2; margin:16px 0; text-align:left; }
+  .drill-result-title { font-family:'Impact','Arial Narrow',sans-serif; font-size:36px; letter-spacing:3px; color:var(--accent); }
+  .drill-result-stats { font-family:'Courier New',monospace; font-size:13px; color:var(--muted); line-height:2; margin:16px 0; text-align:left; }
   .drill-result-stats span { color:var(--text); }
   @media (max-width: 768px) {
   .main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height:auto; }
@@ -263,6 +261,49 @@
   .session-stats-bar { gap: 8px; padding: 6px 10px; }
   .session-stat-val { font-size: 14px; }
 }
+
+  /* ═══ RANGE MODE ═══ */
+  #range-mode-overlay {
+    position: fixed; inset: 0; z-index: 5000;
+    background: #000;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  #range-mode-overlay.active { display: flex; }
+  #range-canvas { position:absolute; inset:0; width:100%; height:100%; }
+  #range-hit-flash { position:absolute; inset:0; pointer-events:none; opacity:0; background:rgba(255,48,48,0.25); transition:opacity 0.05s; }
+  #range-feedback {
+    position:absolute; bottom:90px; left:50%; transform:translateX(-50%);
+    font-family:'Impact','Arial Narrow',sans-serif; font-size:64px; font-weight:700; letter-spacing:4px;
+    text-shadow:0 0 40px currentColor; pointer-events:none;
+    opacity:0; transition:opacity 0.1s;
+  }
+  #range-feedback.show { opacity:1; }
+  #range-topbar {
+    position:absolute; top:0; left:0; right:0;
+    display:flex; justify-content:space-around; align-items:center;
+    padding:8px 16px; background:rgba(0,0,0,0.75);
+    font-family:'Courier New',monospace; font-size:11px; color:rgba(255,255,255,0.5);
+  }
+  .rm-stat { display:flex; flex-direction:column; align-items:center; }
+  .rm-val { font-family:'Impact','Arial Narrow',sans-serif; font-size:28px; color:var(--accent); line-height:1; }
+  #range-bottombar {
+    position:absolute; bottom:0; left:0; right:0;
+    display:flex; justify-content:center; align-items:center; gap:10px;
+    padding:10px; background:rgba(0,0,0,0.75);
+  }
+  #range-status {
+    position:absolute; top:58px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.7); border:1px solid var(--border);
+    padding:3px 12px; font-family:'Courier New',monospace; font-size:10px;
+    color:var(--muted); white-space:nowrap; display:flex; align-items:center; gap:5px;
+  }
+  #range-advice {
+    position:absolute; top:82px; left:50%; transform:translateX(-50%);
+    font-family:'Arial','Helvetica',sans-serif; font-size:13px;
+    color:rgba(255,255,255,0.35); white-space:nowrap; pointer-events:none; text-align:center;
+  }
+  #range-mode-overlay .status-dot { width:7px; height:7px; border-radius:50%; }
 
 </style>
 </head>
@@ -317,9 +358,12 @@
         <button class="btn" onclick="manualShot()" id="btn-manual">MANUAL SHOT</button>
         <button class="btn danger" onclick="clearSession()">CLEAR</button>
         <button class="btn" onclick="exportPDF()" style="margin-left:auto">⬇ EXPORT</button>
+        <button class="btn primary" onclick="enterRangeMode()" id="btn-range-mode">🎯 RANGE MODE</button>
       </div>
       <div class="ctrl-row">
         <button class="btn" onclick="testCallout()" style="font-size:12px">🔊 CALLOUT</button>
+        <button class="btn" onclick="printTarget()" style="font-size:12px">🖨 TARGET</button>
+        <button class="btn" onclick="showCameraGuide()" style="font-size:12px">📷 CAM GUIDE</button>
         <div class="ctrl-group">
           LASER:
           <select id="laser-color" onchange="updateLaserColor()">
@@ -477,7 +521,7 @@
         </div>
         <div class="drill-panel">
           <div class="panel-label">Your Name</div>
-          <input type="text" id="challenge-name" placeholder="Enter your name..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:Rajdhani,sans-serif;font-size:14px;margin-top:4px">
+          <input type="text" id="challenge-name" placeholder="Enter your name..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:Arial,sans-serif;font-size:14px;margin-top:4px">
           <div class="panel-label" style="margin-top:10px">Distance</div>
           <div style="display:flex;gap:8px;margin-top:4px">
             <button class="btn active" id="dist-5" onclick="selectDist('5')">5 YDS</button>
@@ -489,10 +533,10 @@
       </div>
       <div id="challenge-active" style="display:none;flex-direction:column;gap:10px">
         <div style="background:var(--surface2);border:1px solid var(--accent);padding:14px;text-align:center">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">CHALLENGE IN PROGRESS</div>
-          <div style="font-family:'Teko',sans-serif;font-size:48px;color:var(--accent);line-height:1" id="challenge-shots-left">10</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">SHOTS REMAINING</div>
-          <div style="font-family:'Teko',sans-serif;font-size:28px;color:var(--green);margin-top:8px" id="challenge-score-live">SCORE: 0</div>
+          <div style="font-family:'Courier New',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">CHALLENGE IN PROGRESS</div>
+          <div style="font-family:'Impact','Arial Narrow',sans-serif;font-size:48px;color:var(--accent);line-height:1" id="challenge-shots-left">10</div>
+          <div style="font-family:'Courier New',monospace;font-size:11px;color:var(--muted)">SHOTS REMAINING</div>
+          <div style="font-family:'Impact','Arial Narrow',sans-serif;font-size:28px;color:var(--green);margin-top:8px" id="challenge-score-live">SCORE: 0</div>
         </div>
         <div style="font-size:12px;color:var(--muted);font-family:monospace;text-align:center">Use Manual Target or camera to fire shots</div>
         <button class="btn danger" onclick="abortChallenge()">ABORT</button>
@@ -509,6 +553,30 @@
 </div>
 
 <!-- ═══ OVERLAYS ═══ -->
+<!-- ═══ RANGE MODE OVERLAY ═══ -->
+<div id="range-mode-overlay">
+  <canvas id="range-canvas"></canvas>
+  <div id="range-hit-flash"></div>
+  <div id="range-topbar">
+    <div class="rm-stat"><div class="rm-val" id="rm-shots">0</div><div>SHOTS</div></div>
+    <div class="rm-stat"><div class="rm-val" id="rm-hitrate">--%</div><div>HIT RATE</div></div>
+    <div class="rm-stat"><div class="rm-val" id="rm-avg">--</div><div>AVG SCORE</div></div>
+    <div class="rm-stat"><div class="rm-val" id="rm-streak">0</div><div>STREAK</div></div>
+  </div>
+  <div id="range-status">
+    <div class="status-dot" id="range-status-dot" style="background:var(--muted)"></div>
+    <span id="range-status-text">READY</span>
+  </div>
+  <div id="range-advice"></div>
+  <div id="range-feedback"></div>
+  <div id="range-bottombar">
+    <button class="btn warn" id="rm-btn-calibrate" onclick="calibrateBackground(); updateRangeStatus()">CALIBRATE</button>
+    <button class="btn" id="rm-btn-detect" onclick="toggleDetection(); updateRangeStatus()">ENABLE DETECT</button>
+    <button class="btn" onclick="manualShotRange()">MANUAL</button>
+    <button class="btn danger" onclick="exitRangeMode()">✕ EXIT</button>
+  </div>
+</div>
+
 <div id="callout-overlay">
   <div class="callout-box" id="callout-box">
     <div class="callout-streak" id="callout-streak"></div>
@@ -976,6 +1044,12 @@ function recordShot(zone, px, py, source) {
     if (drillShotsRemaining <= 0) completeDrill();
   }
 
+  // Range mode — show feedback and redraw target
+  if (rangeModeActive) {
+    showRangeFeedback(zone);
+    updateRangeStats();
+  }
+
   updateAll();
   checkStreakCallouts();
 
@@ -1119,7 +1193,7 @@ function updateDrillHistory() {
   if (!drillHistory.length) { el.innerHTML = '<div class="empty-state">No drills completed yet.</div>'; return; }
   el.innerHTML = drillHistory.slice(0, 8).map(d => `
     <div class="shot-entry z8" style="flex-direction:column;align-items:flex-start;gap:2px">
-      <span style="color:var(--blue);font-family:Teko,sans-serif;font-size:15px">${d.name}</span>
+      <span style="color:var(--blue);font-family:'Impact','Arial Narrow',sans-serif;font-size:15px">${d.name}</span>
       <span>${d.date} · ${d.time}s · Score: ${d.score} · Hits: ${d.hitPct}%</span>
     </div>
   `).join('');
@@ -1677,9 +1751,9 @@ async function loadLeaderboard() {
   }
   el.innerHTML = filtered.slice(0,5).map((e,i) => `
     <div class="shot-entry ${i===0?'z10':i<3?'z9':'z8'}" style="align-items:center">
-      <span style="font-family:'Teko',sans-serif;font-size:20px;min-width:28px;color:${i===0?'var(--accent)':i<3?'#aaff00':'var(--blue)'}">${i+1}</span>
+      <span style="font-family:'Impact','Arial Narrow',sans-serif;font-size:20px;min-width:28px;color:${i===0?'var(--accent)':i<3?'#aaff00':'var(--blue)'}">${i+1}</span>
       <span style="flex:1;font-size:13px;color:var(--text)">${e.name}</span>
-      <span style="font-family:'Teko',sans-serif;font-size:22px;color:${i===0?'var(--accent)':'var(--text)'}">${e.score}<span style="font-size:12px;color:var(--muted)">/100</span></span>
+      <span style="font-family:'Impact','Arial Narrow',sans-serif;font-size:22px;color:${i===0?'var(--accent)':'var(--text)'}">${e.score}<span style="font-size:12px;color:var(--muted)">/100</span></span>
       <span style="font-size:10px;color:var(--muted);margin-left:8px">${e.date}</span>
     </div>
   `).join('');
@@ -1687,7 +1761,272 @@ async function loadLeaderboard() {
 
 
 // ═══════════════════════════════════════════
-// TABS
+// RANGE MODE
+// ═══════════════════════════════════════════
+let rangeModeActive = false;
+let rangeFeedbackTimeout = null;
+let rangeAdviceInterval = null;
+
+const RANGE_ADVICE = [
+  'Focus on the front sight', 'Smooth trigger press — straight back',
+  'Grip firm but relaxed', 'Breathe out, pause, press',
+  'Follow through — hold aim after shot', 'Equal height, equal light on sights',
+  'Squeeze — don\'t slap the trigger', 'Reset the trigger forward after each shot',
+  'Strong hand — control recoil', 'Index finger on the pad only'
+];
+
+function enterRangeMode() {
+  rangeModeActive = true;
+  document.getElementById('range-mode-overlay').classList.add('active');
+  drawRangeTarget();
+  updateRangeStats();
+  updateRangeStatus();
+
+  // Rotate advice every 8 seconds
+  let advIdx = Math.floor(Math.random() * RANGE_ADVICE.length);
+  document.getElementById('range-advice').textContent = RANGE_ADVICE[advIdx];
+  rangeAdviceInterval = setInterval(() => {
+    advIdx = (advIdx + 1) % RANGE_ADVICE.length;
+    const el = document.getElementById('range-advice');
+    el.style.opacity = '0';
+    setTimeout(() => { el.textContent = RANGE_ADVICE[advIdx]; el.style.opacity = ''; }, 600);
+  }, 8000);
+}
+
+function exitRangeMode() {
+  rangeModeActive = false;
+  document.getElementById('range-mode-overlay').classList.remove('active');
+  clearInterval(rangeAdviceInterval);
+}
+
+function drawRangeTarget() {
+  const canvas = document.getElementById('range-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = window.innerWidth;
+  const H = canvas.height = window.innerHeight;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+
+  // Center target — use 80% of shortest dimension
+  const maxR = Math.min(W, H) * 0.38;
+  const cx = W / 2, cy = H / 2;
+
+  const cfg = getTargetConfig();
+
+  // Draw rings outer to inner
+  cfg.rings.forEach((ring, i) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, maxR * ring.r, 0, Math.PI * 2);
+    // Make rings high contrast for camera detection
+    const fills = ['#1a1a1a','#2a1a1a','#1a1a2a','#1a2a1a','#2a2a00','#e8ff00'];
+    ctx.fillStyle = fills[i] || ring.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Ring labels
+    if (i < cfg.labels.length - 1) {
+      const labelR = maxR * ring.r * 0.92;
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = `${Math.max(10, maxR * 0.06)}px "Courier New", monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(cfg.labels[i], cx, cy - labelR);
+    }
+  });
+
+  // Crosshair
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 8]);
+  ctx.beginPath(); ctx.moveTo(cx, cy - maxR); ctx.lineTo(cx, cy + maxR); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - maxR, cy); ctx.lineTo(cx + maxR, cy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plot shots
+  const shots = session.shots.filter(s => s.px != null);
+  shots.slice(-50).forEach((shot, i) => {
+    const sx = shot.px * W, sy = shot.py * H;
+    const alpha = 0.3 + 0.7 * ((i + 1) / Math.min(shots.length, 50));
+    ctx.beginPath();
+    ctx.arc(sx, sy, 7, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 48, 48, ${alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = 1.5; ctx.stroke();
+  });
+
+  // Centroid
+  const hits = shots.filter(s => s.zone !== 'MISS');
+  if (hits.length >= 3) {
+    const gcx = hits.reduce((a,s)=>a+s.px,0)/hits.length * W;
+    const gcy = hits.reduce((a,s)=>a+s.py,0)/hits.length * H;
+    ctx.beginPath(); ctx.arc(gcx, gcy, 9, 0, Math.PI * 2);
+    ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2;
+    ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+  }
+}
+
+function showRangeFeedback(zone) {
+  const el = document.getElementById('range-feedback');
+  const score = zoneScore(zone);
+  const color = zoneColor(zone);
+  el.textContent = zone === 'MISS' ? 'MISS' : zone === 'X' ? 'X !' : zone;
+  el.style.color = color;
+  el.classList.add('show');
+
+  // Flash
+  const flash = document.getElementById('range-hit-flash');
+  flash.style.background = zone === 'MISS' ? 'rgba(255,34,34,0.3)' : 'rgba(232,255,0,0.15)';
+  flash.style.opacity = '1';
+  setTimeout(() => { flash.style.opacity = '0'; }, 120);
+
+  if (rangeFeedbackTimeout) clearTimeout(rangeFeedbackTimeout);
+  rangeFeedbackTimeout = setTimeout(() => el.classList.remove('show'), 1200);
+}
+
+function updateRangeStats() {
+  if (!rangeModeActive) return;
+  const s = session.shots;
+  const hits = s.filter(x => x.zone !== 'MISS');
+  const hitPct = s.length ? Math.round(hits.length/s.length*100) : null;
+  const avg = hits.length ? (hits.reduce((a,b)=>a+b.score,0)/hits.length).toFixed(1) : '--';
+  let streak = 0;
+  for (let i=s.length-1;i>=0;i--) { const z=s[i].zone; if(z==='X'||z==='10'||z==='A')streak++; else break; }
+
+  document.getElementById('rm-shots').textContent = s.length;
+  document.getElementById('rm-hitrate').textContent = hitPct != null ? hitPct+'%' : '--%';
+  document.getElementById('rm-avg').textContent = avg;
+  document.getElementById('rm-streak').textContent = streak;
+  drawRangeTarget();
+}
+
+function updateRangeStatus() {
+  const dot = document.getElementById('range-status-dot');
+  const txt = document.getElementById('range-status-text');
+  const rmDetect = document.getElementById('rm-btn-detect');
+  if (!cameraActive) {
+    dot.style.background = 'var(--muted)'; txt.textContent = 'NO CAMERA — TAP MANUAL';
+  } else if (!bgCaptured) {
+    dot.style.background = 'var(--accent2)'; txt.textContent = 'CALIBRATE FIRST';
+  } else if (!detectionActive) {
+    dot.style.background = 'var(--blue)'; txt.textContent = 'CALIBRATED — ENABLE DETECT';
+  } else {
+    dot.style.background = 'var(--green)'; txt.textContent = 'DETECTING';
+  }
+  if (rmDetect) {
+    rmDetect.textContent = detectionActive ? 'DETECTION ON' : 'ENABLE DETECT';
+    rmDetect.className = detectionActive ? 'btn active' : 'btn';
+  }
+}
+
+function manualShotRange() {
+  const angle = Math.random() * Math.PI * 2;
+  const dist = Math.random() * 0.85 + 0.05;
+  const px = 0.5 + Math.cos(angle) * dist * 0.45;
+  const py = 0.5 + Math.sin(angle) * dist * 0.45;
+  recordShot(distToZone(dist), px, py, 'manual');
+}
+
+// ═══════════════════════════════════════════
+// PRINTABLE TARGET PDF
+// ═══════════════════════════════════════════
+function printTarget() {
+  // Draw target on an offscreen canvas then download as PNG — no popup needed
+  const canvas = document.createElement('canvas');
+  canvas.width = 1200; canvas.height = 1200;
+  const ctx = canvas.getContext('2d');
+  const W = 1200, H = 1200, cx = W/2, cy = H/2, maxR = 540;
+
+  // White background
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+
+  // Outer border
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
+  ctx.strokeRect(10, 10, W-20, H-20);
+
+  // Title
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('LASER TRAINER PRO — HIGH CONTRAST TARGET', cx, 20);
+  ctx.font = '18px Arial';
+  ctx.fillStyle = '#555';
+  ctx.fillText('Print at 100% · Matte paper recommended · Dark background behind target', cx, 56);
+
+  // Rings — alternating black/white for maximum camera contrast
+  const rings = [
+    { r:1.00, fill:'#ddd', stroke:'#000', lw:3 },
+    { r:0.85, fill:'#111', stroke:'#fff', lw:2 },
+    { r:0.70, fill:'#eee', stroke:'#000', lw:2 },
+    { r:0.55, fill:'#111', stroke:'#fff', lw:2 },
+    { r:0.40, fill:'#eee', stroke:'#000', lw:2 },
+    { r:0.25, fill:'#111', stroke:'#fff', lw:2 },
+    { r:0.12, fill:'#fff', stroke:'#000', lw:3 },  // X ring — bright white center
+  ];
+
+  const targetCY = cy + 40; // shift down slightly to leave room for title
+
+  rings.forEach(ring => {
+    ctx.beginPath();
+    ctx.arc(cx, targetCY, maxR * ring.r, 0, Math.PI * 2);
+    ctx.fillStyle = ring.fill; ctx.fill();
+    ctx.strokeStyle = ring.stroke; ctx.lineWidth = ring.lw; ctx.stroke();
+  });
+
+  // Zone labels
+  const labels = [
+    ['7', 0.925, false], ['8', 0.775, true], ['9', 0.625, false],
+    ['10', 0.475, true], ['X', 0.16, false]
+  ];
+  labels.forEach(([lbl, r, dark]) => {
+    ctx.fillStyle = dark ? '#fff' : '#000';
+    ctx.font = `bold ${Math.round(maxR * 0.07)}px Arial`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(lbl, cx, targetCY - maxR * r + maxR * 0.04);
+    ctx.fillText(lbl, cx, targetCY + maxR * r - maxR * 0.04);
+    ctx.fillText(lbl, cx - maxR * r + maxR * 0.04, targetCY);
+    ctx.fillText(lbl, cx + maxR * r - maxR * 0.04, targetCY);
+  });
+
+  // Crosshair lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.lineWidth = 1;
+  ctx.setLineDash([6, 10]);
+  ctx.beginPath(); ctx.moveTo(cx, targetCY - maxR); ctx.lineTo(cx, targetCY + maxR); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - maxR, targetCY); ctx.lineTo(cx + maxR, targetCY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Footer tip
+  ctx.fillStyle = '#888'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Camera: behind & above shooting shoulder · Laser: 632-650nm red · Calibrate before each session', cx, H - 24);
+
+  // Download as PNG
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'laser-trainer-target.png';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+// Camera placement guide
+function showCameraGuide() {
+  alert(
+    '📷 CAMERA PLACEMENT GUIDE\\n\\n' +
+    '✅ BEST: Mount phone behind & above your shooting shoulder, angled down toward target.\\n\\n' +
+    '✅ GOOD: Off to the side at target height, 45° angle to target face.\\n\\n' +
+    '❌ AVOID: Directly behind you (laser blocks camera view).\\n' +
+    '❌ AVOID: Bright lights or windows in background.\\n' +
+    '❌ AVOID: Aiming camera directly at light sources.\\n\\n' +
+    '🎯 TARGET TIP: Print the high-contrast target (black/white rings). Matte paper works better than glossy — less reflection.\\n\\n' +
+    '💡 LASER TIP: Darker room = better detection. Even closing blinds helps significantly.\\n\\n' +
+    'After placing camera:\\n' +
+    '1. START CAMERA\\n' +
+    '2. CALIBRATE (with laser off, room settled)\\n' +
+    '3. ENABLE DETECT\\n' +
+    '4. Enter RANGE MODE for clean view'
+  );
+}
 // ═══════════════════════════════════════════
 function switchTab(name) {
   const names = ['stats','drills','history','coach','challenge'];
