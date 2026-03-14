@@ -2069,51 +2069,61 @@ function startCalLoop() {
 }
 
 function drawCalTargetOverlay(ctx, W, H) {
-  // Draw semi-transparent target rings so user can align phone to printed target
-  const maxR = Math.min(W, H) * 0.38;
+  // Use 70% of shortest dimension so it always fits on screen
+  const maxR = Math.min(W, H) * 0.35;
   const cx = W / 2, cy = H / 2;
   const cfg = getTargetConfig();
 
-  // Outer glow to make it obvious
-  ctx.beginPath(); ctx.arc(cx, cy, maxR, 0, Math.PI*2);
-  ctx.strokeStyle = 'rgba(232,255,0,0.6)'; ctx.lineWidth = 3;
-  ctx.setLineDash([10, 6]); ctx.stroke(); ctx.setLineDash([]);
-
-  // Rings
+  // Draw each ring with clear visible strokes
   cfg.rings.forEach((ring, i) => {
-    ctx.beginPath(); ctx.arc(cx, cy, maxR * ring.r, 0, Math.PI*2);
-    ctx.strokeStyle = i === cfg.rings.length-1
-      ? 'rgba(232,255,0,0.9)'    // innermost = bright yellow
-      : 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = i === cfg.rings.length-1 ? 2.5 : 1.5;
+    const r = maxR * ring.r;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+    const isInner = i === cfg.rings.length - 1;
+    ctx.strokeStyle = isInner ? 'rgba(232,255,0,1)' : 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = isInner ? 3 : 1.5;
+    ctx.setLineDash(isInner ? [] : [6, 4]);
     ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Tick marks at N/S/E/W on every ring — makes alignment easy
+    const tickLen = maxR * 0.05;
+    const tickColor = isInner ? 'rgba(232,255,0,0.9)' : 'rgba(255,255,255,0.5)';
+    ctx.strokeStyle = tickColor; ctx.lineWidth = 2;
+    [[0,-1],[0,1],[1,0],[-1,0]].forEach(([dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + dx*(r - tickLen), cy + dy*(r - tickLen));
+      ctx.lineTo(cx + dx*(r + tickLen), cy + dy*(r + tickLen));
+      ctx.stroke();
+    });
+
+    // Ring label at top
+    if (cfg.labels[i]) {
+      ctx.fillStyle = isInner ? 'rgba(232,255,0,0.9)' : 'rgba(255,255,255,0.4)';
+      ctx.font = `${Math.max(11, maxR * 0.055)}px "Courier New",monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(cfg.labels[i], cx, cy - r + maxR * 0.04);
+    }
   });
 
-  // Center crosshair
-  ctx.strokeStyle = 'rgba(232,255,0,0.5)'; ctx.lineWidth = 1;
-  ctx.setLineDash([5,8]);
-  ctx.beginPath(); ctx.moveTo(cx, cy-maxR*0.5); ctx.lineTo(cx, cy+maxR*0.5); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx-maxR*0.5, cy); ctx.lineTo(cx+maxR*0.5, cy); ctx.stroke();
+  // Center dot
+  ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(232,255,0,0.8)'; ctx.fill();
+
+  // Center crosshair lines
+  ctx.strokeStyle = 'rgba(232,255,0,0.4)'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 8]);
+  ctx.beginPath(); ctx.moveTo(cx, cy - maxR * 0.6); ctx.lineTo(cx, cy + maxR * 0.6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - maxR * 0.6, cy); ctx.lineTo(cx + maxR * 0.6, cy); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Corner alignment markers — helps line up overlay with printed target
-  const corners = [
-    [cx - maxR, cy - maxR], [cx + maxR, cy - maxR],
-    [cx - maxR, cy + maxR], [cx + maxR, cy + maxR]
-  ];
-  ctx.strokeStyle = 'rgba(232,255,0,0.8)'; ctx.lineWidth = 2.5;
-  corners.forEach(([x, y]) => {
-    const dx = x > cx ? 1 : -1, dy = y > cy ? 1 : -1;
-    ctx.beginPath();
-    ctx.moveTo(x, y + dy*-20); ctx.lineTo(x, y); ctx.lineTo(x + dx*20, y);
-    ctx.stroke();
-  });
-
-  // Label
-  ctx.fillStyle = 'rgba(232,255,0,0.7)';
+  // Instruction text
+  ctx.fillStyle = 'rgba(232,255,0,0.8)';
   ctx.font = '13px "Courier New",monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('ALIGN THIS OVERLAY WITH YOUR PRINTED TARGET', cx, cy - maxR - 14);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('ALIGN OVERLAY WITH PRINTED TARGET', cx, cy - maxR - 20);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '11px "Courier New",monospace';
+  ctx.fillText('Match each ring — move phone until overlay lines up', cx, cy - maxR - 4);
 }
 
 // ═══════════════════════════════════════════
