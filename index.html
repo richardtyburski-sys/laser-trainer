@@ -305,6 +305,108 @@
   }
   #range-mode-overlay .status-dot { width:7px; height:7px; border-radius:50%; }
 
+  /* ═══ CALIBRATION MODE ═══ */
+  #cal-mode-overlay {
+    position:fixed; inset:0; z-index:6000;
+    background:#000;
+    display:none; flex-direction:column;
+    align-items:center; justify-content:center;
+  }
+  #cal-mode-overlay.active { display:flex; }
+
+  #cal-video-wrap {
+    position:relative; width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  #cal-video {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; opacity:0.85;
+  }
+
+  /* Target overlay drawn on this canvas */
+  #cal-canvas {
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  /* Top instruction bar */
+  #cal-topbar {
+    position:absolute; top:0; left:0; right:0;
+    background:rgba(0,0,0,0.82); padding:12px 20px;
+    text-align:center;
+    font-family:'Courier New',monospace; font-size:13px; color:rgba(255,255,255,0.7);
+    z-index:10;
+  }
+  #cal-topbar strong { color:var(--accent); font-size:16px; display:block; margin-bottom:4px; letter-spacing:2px; }
+
+  /* Laser detection indicator */
+  #cal-laser-indicator {
+    position:absolute; top:80px; right:16px;
+    background:rgba(0,0,0,0.8); border:2px solid var(--border);
+    padding:10px 16px; text-align:center; z-index:10;
+    font-family:'Courier New',monospace; font-size:10px; color:var(--muted);
+    letter-spacing:1px;
+  }
+  #cal-laser-dot {
+    width:22px; height:22px; border-radius:50%;
+    background:#333; margin:6px auto 4px;
+    transition:background 0.08s, box-shadow 0.08s;
+  }
+  #cal-laser-dot.seen {
+    background:#ff3030;
+    box-shadow: 0 0 16px #ff3030, 0 0 32px rgba(255,48,48,0.5);
+  }
+
+  /* Progress bar */
+  #cal-progress-wrap {
+    position:absolute; bottom:90px; left:10%; right:10%;
+    z-index:10; display:none;
+  }
+  #cal-progress-wrap.active { display:block; }
+  #cal-progress-label {
+    font-family:'Courier New',monospace; font-size:11px;
+    color:var(--accent); letter-spacing:2px; text-align:center; margin-bottom:6px;
+  }
+  #cal-progress-bg {
+    height:10px; background:rgba(255,255,255,0.1);
+    border:1px solid var(--border); border-radius:2px; overflow:hidden;
+  }
+  #cal-progress-fill {
+    height:100%; width:0%; background:var(--accent);
+    transition:width 0.05s linear;
+    box-shadow:0 0 10px var(--accent);
+  }
+
+  /* Success state */
+  #cal-success {
+    position:absolute; inset:0; z-index:20;
+    background:rgba(0,0,0,0.75);
+    display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
+  }
+  #cal-success.active { display:flex; }
+  #cal-success-icon {
+    font-size:72px; animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
+  #cal-success-text {
+    font-family:'Impact','Arial Narrow',sans-serif;
+    font-size:36px; letter-spacing:4px; color:var(--green);
+    text-shadow:0 0 30px var(--green);
+  }
+  #cal-success-sub {
+    font-family:'Courier New',monospace; font-size:13px;
+    color:rgba(255,255,255,0.6); text-align:center;
+  }
+
+  /* Bottom buttons */
+  #cal-bottombar {
+    position:absolute; bottom:0; left:0; right:0;
+    display:flex; justify-content:center; gap:10px;
+    padding:12px; background:rgba(0,0,0,0.82); z-index:10;
+  }
+
 </style>
 </head>
 <body>
@@ -358,6 +460,7 @@
         <button class="btn" onclick="manualShot()" id="btn-manual">MANUAL SHOT</button>
         <button class="btn danger" onclick="clearSession()">CLEAR</button>
         <button class="btn" onclick="exportPDF()" style="margin-left:auto">⬇ EXPORT</button>
+        <button class="btn warn" onclick="enterCalMode()" id="btn-cal-mode">📐 CALIBRATE</button>
         <button class="btn primary" onclick="enterRangeMode()" id="btn-range-mode">🎯 RANGE MODE</button>
       </div>
       <div class="ctrl-row">
@@ -553,6 +656,47 @@
 </div>
 
 <!-- ═══ OVERLAYS ═══ -->
+
+<!-- ═══ CALIBRATION MODE OVERLAY ═══ -->
+<div id="cal-mode-overlay">
+  <div id="cal-video-wrap">
+    <video id="cal-video" autoplay playsinline muted></video>
+    <canvas id="cal-canvas"></canvas>
+
+    <div id="cal-topbar">
+      <strong>📐 CALIBRATION MODE</strong>
+      Align the target overlay with your printed target on the wall, then tap CALIBRATE
+    </div>
+
+    <div id="cal-laser-indicator">
+      LASER
+      <div id="cal-laser-dot"></div>
+      DETECTOR
+    </div>
+
+    <div id="cal-progress-wrap" id="cal-progress-wrap">
+      <div id="cal-progress-label">SAMPLING BACKGROUND...</div>
+      <div id="cal-progress-bg"><div id="cal-progress-fill"></div></div>
+    </div>
+
+    <div id="cal-success">
+      <div id="cal-success-icon">✅</div>
+      <div id="cal-success-text">CALIBRATED</div>
+      <div id="cal-success-sub">Background locked in<br>Laser detection is armed</div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn active" onclick="exitCalMode(); enterRangeMode()">🎯 RANGE MODE</button>
+        <button class="btn" onclick="exitCalMode()">BACK TO APP</button>
+      </div>
+    </div>
+
+    <div id="cal-bottombar">
+      <button class="btn warn" onclick="startCalibration()" id="btn-do-calibrate">CALIBRATE</button>
+      <button class="btn" onclick="toggleDetectionInCal()" id="btn-cal-detect">TEST LASER</button>
+      <button class="btn danger" onclick="exitCalMode()">✕ EXIT</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ RANGE MODE OVERLAY ═══ -->
 <div id="range-mode-overlay">
   <canvas id="range-canvas"></canvas>
@@ -609,7 +753,7 @@ const MIN_CLUSTER_PX = 3;
 
 let bgImageData = null;
 let bgCaptured = false;
-const BG_DIFF_THRESHOLD = 35;
+const BG_DIFF_THRESHOLD = 18;  // was 35 — much more sensitive now
 
 let laserMode = 'red';
 
@@ -832,14 +976,15 @@ function detectLaser(ctx, w, h) {
 
       let score = 0;
       if (laserMode === 'red') {
-        if (r > 200 && g < 80 && b < 70) {
+        // Loosened: r>170 (was 200), g<110 (was 80), b<100 (was 70), ratio>2.5 (was 3.5)
+        if (r > 170 && g < 110 && b < 100) {
           const ratio = r / (Math.max(g, b, 1));
-          if (ratio > 3.5) score = r - Math.max(g, b);
+          if (ratio > 2.5) score = r - Math.max(g, b);
         }
       } else {
-        if (g > 200 && r < 80 && b < 70) {
+        if (g > 170 && r < 110 && b < 100) {
           const ratio = g / (Math.max(r, b, 1));
-          if (ratio > 3.5) score = g - Math.max(r, b);
+          if (ratio > 2.5) score = g - Math.max(r, b);
         }
       }
 
@@ -859,8 +1004,8 @@ function detectLaser(ctx, w, h) {
       if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
       const i = (ny * w + nx) * 4;
       const r = data[i], g = data[i+1], b = data[i+2];
-      if (laserMode === 'red'   && r > 180 && g < 100 && b < 90)  clusterCount++;
-      if (laserMode === 'green' && g > 180 && r < 100 && b < 90)  clusterCount++;
+      if (laserMode === 'red'   && r > 150 && g < 130 && b < 120)  clusterCount++;
+      if (laserMode === 'green' && g > 150 && r < 130 && b < 120)  clusterCount++;
     }
   }
 
@@ -1759,6 +1904,217 @@ async function loadLeaderboard() {
   `).join('');
 }
 
+
+// ═══════════════════════════════════════════
+// CALIBRATION MODE
+// ═══════════════════════════════════════════
+let calModeActive = false;
+let calAnimFrame = null;
+let calDetecting = false;
+let calProgressInterval = null;
+let calLaserSeenTimeout = null;
+
+function enterCalMode() {
+  if (!cameraActive) {
+    alert('Start camera first, then enter Calibration Mode.');
+    return;
+  }
+  calModeActive = true;
+  document.getElementById('cal-mode-overlay').classList.add('active');
+  document.getElementById('cal-success').classList.remove('active');
+  document.getElementById('cal-progress-wrap').classList.remove('active');
+
+  // Mirror the existing camera stream into the cal-video element
+  const calVid = document.getElementById('cal-video');
+  calVid.srcObject = stream;
+
+  // Start drawing overlay + laser detection indicator
+  startCalLoop();
+}
+
+function exitCalMode() {
+  calModeActive = false;
+  calDetecting = false;
+  document.getElementById('cal-mode-overlay').classList.remove('active');
+  document.getElementById('cal-success').classList.remove('active');
+  clearInterval(calProgressInterval);
+  if (calAnimFrame) cancelAnimationFrame(calAnimFrame);
+  const btn = document.getElementById('btn-cal-detect');
+  if (btn) { btn.textContent = 'TEST LASER'; btn.className = 'btn'; }
+}
+
+function toggleDetectionInCal() {
+  calDetecting = !calDetecting;
+  const btn = document.getElementById('btn-cal-detect');
+  if (calDetecting) {
+    btn.textContent = 'LASER ON'; btn.className = 'btn active';
+  } else {
+    btn.textContent = 'TEST LASER'; btn.className = 'btn';
+    document.getElementById('cal-laser-dot').classList.remove('seen');
+  }
+}
+
+function startCalibration() {
+  const video = document.getElementById('cal-video');
+  if (!video || video.readyState < 2) return;
+
+  // Draw current frame as background baseline
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = video.videoWidth || 1280;
+  tmpCanvas.height = video.videoHeight || 720;
+  const tmpCtx = tmpCanvas.getContext('2d');
+
+  // Sample over 2.5 seconds for a solid baseline
+  const DURATION = 2500;
+  const STEPS = 25;
+  const stepMs = DURATION / STEPS;
+  let step = 0;
+  let frames = [];
+
+  document.getElementById('cal-progress-wrap').classList.add('active');
+  document.getElementById('btn-do-calibrate').disabled = true;
+  document.getElementById('cal-progress-fill').style.width = '0%';
+  document.getElementById('cal-progress-label').textContent = 'SAMPLING BACKGROUND...';
+
+  calProgressInterval = setInterval(() => {
+    step++;
+    const pct = (step / STEPS) * 100;
+    document.getElementById('cal-progress-fill').style.width = pct + '%';
+
+    // Capture frame
+    tmpCtx.drawImage(video, 0, 0, tmpCanvas.width, tmpCanvas.height);
+    frames.push(tmpCtx.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height));
+
+    if (step >= STEPS) {
+      clearInterval(calProgressInterval);
+
+      // Average frames for more stable baseline
+      const avg = frames[0];
+      const avgData = avg.data;
+      for (let f = 1; f < frames.length; f++) {
+        const fd = frames[f].data;
+        for (let i = 0; i < avgData.length; i++) {
+          avgData[i] = Math.round((avgData[i] * f + fd[i]) / (f + 1));
+        }
+      }
+
+      // Store as background
+      bgImageData = avg;
+      bgCaptured = true;
+      laserCandidate = null;
+      candidateFrames = 0;
+
+      // Update main calibrate button state too
+      document.getElementById('btn-calibrate').textContent = '✓ CALIBRATED';
+      document.getElementById('btn-calibrate').className = 'btn active';
+      setTimeout(() => {
+        document.getElementById('btn-calibrate').textContent = 'CALIBRATE';
+        document.getElementById('btn-calibrate').className = 'btn warn';
+      }, 3000);
+      setStatus('live', 'CALIBRATED');
+
+      document.getElementById('cal-progress-label').textContent = '✓ COMPLETE';
+      document.getElementById('btn-do-calibrate').disabled = false;
+
+      // Show success screen
+      setTimeout(() => {
+        document.getElementById('cal-progress-wrap').classList.remove('active');
+        document.getElementById('cal-success').classList.add('active');
+      }, 400);
+    }
+  }, stepMs);
+}
+
+function startCalLoop() {
+  const video = document.getElementById('cal-video');
+  const canvas = document.getElementById('cal-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function loop() {
+    if (!calModeActive) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const W = canvas.width, H = canvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Draw target overlay — semi transparent rings
+    drawCalTargetOverlay(ctx, W, H);
+
+    // Laser detection indicator
+    if (calDetecting && video.readyState >= 2) {
+      // Quick scan for laser-colored pixels
+      const tmpC = document.createElement('canvas');
+      tmpC.width = video.videoWidth; tmpC.height = video.videoHeight;
+      const tmpCtx = tmpC.getContext('2d');
+      tmpCtx.drawImage(video, 0, 0);
+      const hit = detectLaser(tmpCtx, tmpC.width, tmpC.height);
+      const dot = document.getElementById('cal-laser-dot');
+      if (hit) {
+        dot.classList.add('seen');
+        // Draw hit indicator on overlay
+        const px = hit.x * W, py = hit.y * H;
+        ctx.beginPath(); ctx.arc(px, py, 15, 0, Math.PI*2);
+        ctx.strokeStyle = '#ff3030'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2);
+        ctx.fillStyle = '#ff3030'; ctx.fill();
+        if (calLaserSeenTimeout) clearTimeout(calLaserSeenTimeout);
+        calLaserSeenTimeout = setTimeout(() => dot.classList.remove('seen'), 300);
+      }
+    }
+
+    calAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function drawCalTargetOverlay(ctx, W, H) {
+  // Draw semi-transparent target rings so user can align phone to printed target
+  const maxR = Math.min(W, H) * 0.38;
+  const cx = W / 2, cy = H / 2;
+  const cfg = getTargetConfig();
+
+  // Outer glow to make it obvious
+  ctx.beginPath(); ctx.arc(cx, cy, maxR, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(232,255,0,0.6)'; ctx.lineWidth = 3;
+  ctx.setLineDash([10, 6]); ctx.stroke(); ctx.setLineDash([]);
+
+  // Rings
+  cfg.rings.forEach((ring, i) => {
+    ctx.beginPath(); ctx.arc(cx, cy, maxR * ring.r, 0, Math.PI*2);
+    ctx.strokeStyle = i === cfg.rings.length-1
+      ? 'rgba(232,255,0,0.9)'    // innermost = bright yellow
+      : 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = i === cfg.rings.length-1 ? 2.5 : 1.5;
+    ctx.stroke();
+  });
+
+  // Center crosshair
+  ctx.strokeStyle = 'rgba(232,255,0,0.5)'; ctx.lineWidth = 1;
+  ctx.setLineDash([5,8]);
+  ctx.beginPath(); ctx.moveTo(cx, cy-maxR*0.5); ctx.lineTo(cx, cy+maxR*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-maxR*0.5, cy); ctx.lineTo(cx+maxR*0.5, cy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Corner alignment markers — helps line up overlay with printed target
+  const corners = [
+    [cx - maxR, cy - maxR], [cx + maxR, cy - maxR],
+    [cx - maxR, cy + maxR], [cx + maxR, cy + maxR]
+  ];
+  ctx.strokeStyle = 'rgba(232,255,0,0.8)'; ctx.lineWidth = 2.5;
+  corners.forEach(([x, y]) => {
+    const dx = x > cx ? 1 : -1, dy = y > cy ? 1 : -1;
+    ctx.beginPath();
+    ctx.moveTo(x, y + dy*-20); ctx.lineTo(x, y); ctx.lineTo(x + dx*20, y);
+    ctx.stroke();
+  });
+
+  // Label
+  ctx.fillStyle = 'rgba(232,255,0,0.7)';
+  ctx.font = '13px "Courier New",monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('ALIGN THIS OVERLAY WITH YOUR PRINTED TARGET', cx, cy - maxR - 14);
+}
 
 // ═══════════════════════════════════════════
 // RANGE MODE
