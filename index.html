@@ -413,6 +413,7 @@
 
 <header>
   <div class="logo">LASER<span>TRAINER</span> PRO <span style="font-size:14px;opacity:0.6">v2</span></div>
+  <div style="background:var(--accent);color:#000;padding:3px 10px;font-size:11px;font-weight:bold;letter-spacing:1px">✓ NEW VERSION LOADED</div>
   <div class="session-info" id="session-info">SESSION: --<br>SHOTS: 0 | SCORE: --</div>
 </header>
 
@@ -2297,40 +2298,47 @@ function manualShotRange() {
 // PRINTABLE TARGET PDF
 // ═══════════════════════════════════════════
 function printTarget() {
-  // Draw target on an offscreen canvas then download as PNG — no popup needed
+  // 8.5x11" at 300dpi = 2550x3300px
+  // With 0.5" margins: printable area = 7.5x10" = 2250x3000px
+  // Target circle = 7" diameter = 2100px radius = 1050px
   const canvas = document.createElement('canvas');
-  canvas.width = 1200; canvas.height = 1200;
+  canvas.width = 2550; canvas.height = 3300;
   const ctx = canvas.getContext('2d');
-  const W = 1200, H = 1200, cx = W/2, cy = H/2, maxR = 540;
+  const W = 2550, H = 3300;
+  const cx = W / 2;
+  const margin = 150; // 0.5" at 300dpi
+  const maxR = 1050; // 7" diameter target
+  const targetCY = H / 2 + 60; // slightly below center to fit title above
 
   // White background
   ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
 
-  // Outer border
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
-  ctx.strokeRect(10, 10, W-20, H-20);
+  // Page border
+  ctx.strokeStyle = '#ccc'; ctx.lineWidth = 3;
+  ctx.strokeRect(margin, margin, W - margin*2, H - margin*2);
 
-  // Title
+  // Title block
   ctx.fillStyle = '#000';
-  ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText('LASER TRAINER PRO — HIGH CONTRAST TARGET', cx, 20);
-  ctx.font = '18px Arial';
-  ctx.fillStyle = '#555';
-  ctx.fillText('Print at 100% · Matte paper recommended · Dark background behind target', cx, 56);
+  ctx.font = 'bold 52px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('LASER TRAINER PRO', cx, margin + 20);
+  ctx.font = '30px Arial'; ctx.fillStyle = '#444';
+  ctx.fillText('HIGH CONTRAST CALIBRATION TARGET', cx, margin + 84);
+  ctx.font = '22px Arial'; ctx.fillStyle = '#888';
+  ctx.fillText('Print at 100% actual size · Do not scale · Matte paper preferred', cx, margin + 126);
 
-  // Rings — alternating black/white for maximum camera contrast
+  // Rings — alternating black/white, high contrast for camera
   const rings = [
-    { r:1.00, fill:'#ddd', stroke:'#000', lw:3 },
-    { r:0.85, fill:'#111', stroke:'#fff', lw:2 },
-    { r:0.70, fill:'#eee', stroke:'#000', lw:2 },
-    { r:0.55, fill:'#111', stroke:'#fff', lw:2 },
-    { r:0.40, fill:'#eee', stroke:'#000', lw:2 },
-    { r:0.25, fill:'#111', stroke:'#fff', lw:2 },
-    { r:0.12, fill:'#fff', stroke:'#000', lw:3 },  // X ring — bright white center
+    { r:1.00, fill:'#e0e0e0', stroke:'#000', lw:5 },
+    { r:0.85, fill:'#111',    stroke:'#ddd', lw:3 },
+    { r:0.70, fill:'#e0e0e0', stroke:'#000', lw:3 },
+    { r:0.55, fill:'#111',    stroke:'#ddd', lw:3 },
+    { r:0.40, fill:'#e0e0e0', stroke:'#000', lw:3 },
+    { r:0.25, fill:'#111',    stroke:'#ddd', lw:3 },
+    { r:0.12, fill:'#fff',    stroke:'#000', lw:4 },
   ];
+  const labels = ['','7','8','9','10','X',''];
 
-  const targetCY = cy + 40; // shift down slightly to leave room for title
-
+  // Draw filled rings outer to inner
   rings.forEach(ring => {
     ctx.beginPath();
     ctx.arc(cx, targetCY, maxR * ring.r, 0, Math.PI * 2);
@@ -2338,40 +2346,55 @@ function printTarget() {
     ctx.strokeStyle = ring.stroke; ctx.lineWidth = ring.lw; ctx.stroke();
   });
 
-  // Zone labels
-  const labels = [
-    ['7', 0.925, false], ['8', 0.775, true], ['9', 0.625, false],
-    ['10', 0.475, true], ['X', 0.16, false]
-  ];
-  labels.forEach(([lbl, r, dark]) => {
-    ctx.fillStyle = dark ? '#fff' : '#000';
-    ctx.font = `bold ${Math.round(maxR * 0.07)}px Arial`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(lbl, cx, targetCY - maxR * r + maxR * 0.04);
-    ctx.fillText(lbl, cx, targetCY + maxR * r - maxR * 0.04);
-    ctx.fillText(lbl, cx - maxR * r + maxR * 0.04, targetCY);
-    ctx.fillText(lbl, cx + maxR * r - maxR * 0.04, targetCY);
+  // Tick marks at N/S/E/W on every ring
+  rings.forEach((ring, i) => {
+    const r = maxR * ring.r;
+    const tickLen = maxR * 0.052;
+    const isDark = ring.fill === '#111';
+    ctx.strokeStyle = isDark ? '#fff' : '#000';
+    ctx.lineWidth = 4;
+    [[0,-1],[0,1],[1,0],[-1,0]].forEach(([dx, dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + dx * (r - tickLen), targetCY + dy * (r - tickLen));
+      ctx.lineTo(cx + dx * (r + tickLen), targetCY + dy * (r + tickLen));
+      ctx.stroke();
+    });
+
+    // Labels on all 4 sides
+    if (labels[i]) {
+      const isDarkRing = ring.fill === '#111';
+      ctx.fillStyle = isDarkRing ? '#fff' : '#000';
+      ctx.font = `bold ${Math.round(maxR * 0.08)}px Arial`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const offset = maxR * 0.048;
+      ctx.fillText(labels[i], cx,       targetCY - r + offset);
+      ctx.fillText(labels[i], cx,       targetCY + r - offset);
+      ctx.fillText(labels[i], cx - r + offset, targetCY);
+      ctx.fillText(labels[i], cx + r - offset, targetCY);
+    }
   });
 
-  // Crosshair lines
-  ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.lineWidth = 1;
-  ctx.setLineDash([6, 10]);
+  // Center dot
+  ctx.beginPath(); ctx.arc(cx, targetCY, 12, 0, Math.PI * 2);
+  ctx.fillStyle = '#000'; ctx.fill();
+
+  // Light crosshair
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 2;
+  ctx.setLineDash([8, 14]);
   ctx.beginPath(); ctx.moveTo(cx, targetCY - maxR); ctx.lineTo(cx, targetCY + maxR); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx - maxR, targetCY); ctx.lineTo(cx + maxR, targetCY); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Footer tip
-  ctx.fillStyle = '#888'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
-  ctx.fillText('Camera: behind & above shooting shoulder · Laser: 632-650nm red · Calibrate before each session', cx, H - 24);
+  // Footer
+  ctx.fillStyle = '#999'; ctx.font = '24px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Camera: behind & above shooting shoulder at 45° · Calibrate with laser OFF · Dark wall behind target', cx, H - margin - 16);
 
-  // Download as PNG
+  // Download
   canvas.toBlob(blob => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'laser-trainer-target.png';
-    a.click();
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = 'laser-trainer-target-v2.png';
+    a.click(); URL.revokeObjectURL(url);
   });
 }
 
